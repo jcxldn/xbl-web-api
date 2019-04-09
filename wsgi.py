@@ -1,6 +1,6 @@
 import main
-import server
+from server import app as application
 
 if __name__ == "__main__":
     main.main()
-    server.app.run()
+    application.run()
