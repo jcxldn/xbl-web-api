@@ -27,9 +27,10 @@ def main():
     print('Logged in as: %s' % auth_mgr.userinfo.gamertag)
 
     # Create the XboxLiveClient
-    global xbl_client
     xbl_client = XboxLiveClient(
         auth_mgr.userinfo.userhash, auth_mgr.xsts_token.jwt, auth_mgr.userinfo.xuid)
+
+    server.get_client(xbl_client)
 
     #profile = xbl_client.profile.get_profile_by_gamertag('Major Nelson')
     # print(profile.content)
