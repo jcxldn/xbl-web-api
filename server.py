@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 
 import routes.profile
 import routes.xuid
+import routes.userstats
 
 app = Flask(__name__, static_folder=None)
 
@@ -27,6 +28,7 @@ def res_as_json(data):
 # add routes / blueprints from other files
 app.register_blueprint(routes.profile.app, url_prefix="/profile")
 app.register_blueprint(routes.xuid.app, url_prefix="/xuid")
+app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
 
 # define routes
 @app.route("/")
