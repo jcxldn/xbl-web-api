@@ -12,8 +12,6 @@ app = Flask(__name__, static_folder=None)
 def get_client(main_xbl_client):
     global xbl_client
     xbl_client = main_xbl_client
-    routes.profile.get_client(xbl_client)
-    routes.xuid.get_client(xbl_client)
 
 
 def run_dev():
