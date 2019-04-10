@@ -40,3 +40,8 @@ def list_routes():
     for rule in app.url_map.iter_rules():
         routes.append('%s' % rule)
     return jsonify(routes)
+
+
+@app.route("/titleinfo/<int:titleid>")
+def titleinfo(titleid):
+    return xbl_client.titlehub.get_title_info(titleid).content
