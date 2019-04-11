@@ -25,6 +25,16 @@
           html = converter.makeHtml(data);
 
         $("body").append(html);
+
+        $.get("info").then(data => {
+          $("img")
+            .parent()
+            .append(
+              ` <img src="https://img.shields.io/badge/sha-${
+                data.sha
+              }-blue.svg">`
+            );
+        });
       });
     </script>
   </head>

@@ -2,6 +2,8 @@ import os
 
 from flask import Flask, jsonify, send_from_directory
 
+import subprocess
+
 import routes.profile
 import routes.xuid
 import routes.userstats
@@ -22,6 +24,19 @@ def run_dev():
 def res_as_json(data):
     return app.response_class(response=data, mimetype='application/json')
 
+# Get the short SHA and return as string
+
+
+def get_sha():
+    return str(subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()).split("'")[1::2][0]
+
+
+def get_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append('%s' % rule)
+    return routes
+
 
 # add routes / blueprints from other files
 app.register_blueprint(routes.profile.app, url_prefix="/profile")
@@ -39,12 +54,9 @@ def readme():
     return send_from_directory("./", "README.md")
 
 
-@app.route("/routes")
-def list_routes():
-    routes = []
-    for rule in app.url_map.iter_rules():
-        routes.append('%s' % rule)
-    return jsonify(routes)
+@app.route("/info")
+def info():
+    return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
 @app.route("/titleinfo/<int:titleid>")
