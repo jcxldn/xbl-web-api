@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 
 import routes.profile
 import routes.xuid
@@ -30,8 +30,13 @@ app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
 
 # define routes
 @app.route("/")
-def hello():
-    return jsonify({"hello": "hello, world!"})
+def index():
+    return send_from_directory("static", "index.html")
+
+
+@app.route("/readme")
+def readme():
+    return send_from_directory("./", "README.md")
 
 
 @app.route("/routes")
