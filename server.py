@@ -61,4 +61,9 @@ def info():
 
 @app.route("/titleinfo/<int:titleid>")
 def titleinfo(titleid):
-    return xbl_client.titlehub.get_title_info(titleid).content
+    return res_as_json(xbl_client.titlehub.get_title_info(titleid).content)
+
+
+@app.route("/legacysearch/<query>")
+def search360(query):
+    return res_as_json(xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content)

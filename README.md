@@ -12,18 +12,22 @@ All routes return JSON unless otherwise specified.
 
   Get title information by its title ID.
 
+- `/legacysearch/<str:query>`
+
+  Search the Xbox 360 Marketplace.
+
 - `/profile/xuid/<int:xuid>`
 
   Get a profile by the user's XUID.
-  
+
 - `/profile/gamertag<str:gamertag>`
 
   Get a profile by the user's gamertag.
-  
+
 - `/profile/settings/xuid/<int:xuid>`
 
   Get profile settings (less data) by the user's XUID.
-  
+
 - `/profile/settings/gamertag/<str:gamertag>`
 
   Get profile settings (less data) by the user's gamertag.
