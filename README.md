@@ -1,5 +1,6 @@
 # xbl-web-api
 
+![](https://travis-ci.com/Prouser123/xbl-web-api.svg?token=hqzCdqn2NH2x9K2LdoRk&branch=master)
 ![](https://img.shields.io/badge/python-3-blue.svg)
 
 [Production Instance](https://xbl-api.prouser123.me/)
