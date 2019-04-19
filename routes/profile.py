@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 
 import server
 import routes.xuid
@@ -23,9 +23,24 @@ def settings_xuid(xuid):
 
 @app.route("/xuid/<int:xuid>")
 def xuid(xuid):
-    return server.res_as_json(server.xbl_client.profile.get_profiles([xuid]).content)
+    # Check if the XUID is valid, and if not, return an error
+    if (not routes.xuid.isXUID(xuid)):
+        return jsonify({"error": 400, "message": "invalid xuid"}), 400
+    # if the xuid is valid, make the API request
+    req = server.xbl_client.profile.get_profiles([xuid])
+    # Client returns code 400 instead of 404
+    if (req.status_code == 400):
+        return jsonify({"error": 404, "message": "user not found"}), 404
+    # return the usual response if there were no issues
+    return server.res_as_json(req.content)
 
 
 @app.route("/gamertag/<gamertag>")
 def gamertag(gamertag):
-    return xuid(routes.xuid.gamertag_to_xuid_raw(gamertag))
+    # make the request
+    req = routes.xuid.gamertag_to_xuid_raw(gamertag)
+    # if an error was recieved (it will return an object), return the error
+    if (not routes.xuid.isInt(req)):
+        return req
+    # if there were no errors, return the usual response
+    return xuid(req)
