@@ -27,6 +27,11 @@
         // append the HTML to the DOM body
         $("body").append(html);
 
+        // Replace the 'Live Instance' link with the GitHub Link
+        const link = $("body p:eq(1) a");
+        link.text("GitHub");
+        link.attr("href", "https://github.com/Prouser123/xbl-web-api");
+
         $.get("info").then(data => {
           const imgArea = $('img[alt="python3 badge"]').parent();
 
