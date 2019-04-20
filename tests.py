@@ -216,6 +216,14 @@ class TestMisc(BaseTest):
                 self.assertEqual(req.get_data(
                     as_text=True).replace("\r", ""), f.read())
 
+    def test_index(self):
+        with server.app.test_request_context():
+            req = self.app.get("/")
+            self.assertIs200(req)
+            with open("static/index.html") as f:
+                self.assertEqual(req.get_data(
+                    as_text=True).replace("\r", ""), f.read())
+
 
 if __name__ == '__main__':
     print("HAI")
