@@ -27,12 +27,14 @@
         $("body").append(html);
 
         $.get("info").then(data => {
-          $("img")
+          $('img[alt="python3 badge"]')
             .parent()
             .append(
-              ` <img src="https://img.shields.io/badge/sha-${
+              ` <a href="https://github.com/Prouser123/xbl-web-api/commit/${
                 data.sha
-              }-blue.svg">`
+              }"><img src="https://img.shields.io/badge/sha-${
+                data.sha
+              }-blue.svg"></a>`
             );
         });
       });

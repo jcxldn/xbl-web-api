@@ -1,8 +1,8 @@
 # xbl-web-api
 
-![](https://img.shields.io/travis/com/Prouser123/xbl-web-api.svg)
-![](https://img.shields.io/codecov/c/gh/prouser123/xbl-web-api.svg)
-![](https://img.shields.io/badge/python-3-blue.svg)
+[![build status badge](https://img.shields.io/travis/com/Prouser123/xbl-web-api.svg)](https://travis-ci.com/Prouser123/xbl-web-api)
+[![coverage badge](https://img.shields.io/codecov/c/gh/prouser123/xbl-web-api.svg)](https://codecov.io/gh/Prouser123/xbl-web-api)
+![python3 badge](https://img.shields.io/badge/python-3-blue.svg)
 
 [Live Instance](https://xbl-api.prouser123.me/)
 
