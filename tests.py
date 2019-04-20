@@ -224,6 +224,19 @@ class TestMisc(BaseTest):
                 self.assertEqual(req.get_data(
                     as_text=True).replace("\r", ""), f.read())
 
+    def test_se_routes(self):
+        with server.app.test_request_context():
+            req = self.app.get("/shields-endpoint/routes-amount")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+            self.assertEqual(req.json["schemaVersion"], 1)
+            self.assertEqual(req.json["label"], "routes")
+            self.assertEqual(req.json["color"], "blue")
+            self.assertEqual(
+                req.json["message"],
+                str(len(server.get_routes()))
+            )
+
 
 if __name__ == '__main__':
     print("HAI")

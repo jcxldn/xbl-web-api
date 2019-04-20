@@ -67,3 +67,13 @@ def titleinfo(titleid):
 @app.route("/legacysearch/<query>")
 def search360(query):
     return res_as_json(xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content)
+
+
+@app.route("/shields-endpoint/routes-amount")
+def se_routes():
+    return jsonify({
+        "schemaVersion": 1,
+        "label": "routes",
+        "message": str(len(get_routes())),
+        "color": "blue"
+    })

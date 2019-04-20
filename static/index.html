@@ -21,21 +21,42 @@
     </style>
     <script>
       $.get("readme").then(data => {
+        // use Showdown to convert the README to HTML
         var converter = new showdown.Converter(),
           html = converter.makeHtml(data);
-
+        // append the HTML to the DOM body
         $("body").append(html);
 
         $.get("info").then(data => {
-          $('img[alt="python3 badge"]')
-            .parent()
-            .append(
-              ` <a href="https://github.com/Prouser123/xbl-web-api/commit/${
-                data.sha
-              }"><img src="https://img.shields.io/badge/sha-${
-                data.sha
-              }-blue.svg"></a>`
+          const imgArea = $('img[alt="python3 badge"]').parent();
+
+          // Get the window location
+          const location = window.location;
+          // Add and setup the routes badge if certain conditions are met
+          if (
+            location.hostname != "localhost" &&
+            location.protocol == "https:"
+          ) {
+            // Setup the routes badge URL
+            const routes_url = `https://img.shields.io/endpoint.svg?url=https%3A%2F%2F${
+              location.hostname
+            }%2Fshields-endpoint%2Froutes-amount`;
+            // Append the routes badge
+            imgArea.append(` <img src="${routes_url}">`);
+          } else {
+            console.log(
+              "Route badge not available. You must not be using localhost and must be using HTTPS."
             );
+          }
+
+          // Add the sha badge
+          imgArea.append(
+            ` <a href="https://github.com/Prouser123/xbl-web-api/commit/${
+              data.sha
+            }"><img src="https://img.shields.io/badge/sha-${
+              data.sha
+            }-blue.svg"></a>`
+          );
         });
       });
     </script>
