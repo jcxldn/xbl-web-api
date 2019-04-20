@@ -199,6 +199,24 @@ class TestUserStats(BaseTest):
             self.assertIsValidTitleIdResponseNoStats(req)
 
 
+class TestMisc(BaseTest):
+    def test_info(self):
+        with server.app.test_request_context():
+            req = self.app.get("/info")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+            self.assertEqual(req.json["sha"], server.get_sha())
+            self.assertEqual(req.json["routes"], server.get_routes())
+
+    def test_readme(self):
+        with server.app.test_request_context():
+            req = self.app.get("/readme")
+            self.assertIs200(req)
+            with open("README.md") as f:
+                self.assertEqual(req.get_data(
+                    as_text=True).replace("\r", ""), f.read())
+
+
 if __name__ == '__main__':
     print("HAI")
     main.main()
