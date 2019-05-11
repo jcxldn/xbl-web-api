@@ -22,4 +22,4 @@ keepalive = 24 * 60 * 60  # 1 day
 capture_output = True
 
 # connect to xbox live
-main.main()
+main.authenticate()

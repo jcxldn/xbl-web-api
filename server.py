@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, jsonify, send_from_directory
 
 import subprocess
@@ -7,6 +5,7 @@ import subprocess
 import routes.profile
 import routes.xuid
 import routes.userstats
+import routes.dev
 
 app = Flask(__name__, static_folder=None)
 
@@ -14,11 +13,6 @@ app = Flask(__name__, static_folder=None)
 def get_client(main_xbl_client):
     global xbl_client
     xbl_client = main_xbl_client
-
-
-def run_dev():
-    port = os.getenv("PORT") or 3000
-    app.run(host='0.0.0.0', port=port)
 
 
 def res_as_json(data):
@@ -42,6 +36,7 @@ def get_routes():
 app.register_blueprint(routes.profile.app, url_prefix="/profile")
 app.register_blueprint(routes.xuid.app, url_prefix="/xuid")
 app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
+app.register_blueprint(routes.dev.app, url_prefix="/dev")
 
 # define routes
 @app.route("/")

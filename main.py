@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 
 
 # Connect to Xbox Live and set a global client variable
-def main():
+def authenticate():
     auth_mgr = AuthenticationManager()
     auth_mgr.email_address = os.getenv("XBL_EMAIL")
     auth_mgr.password = os.getenv("XBL_PASS")
@@ -32,13 +32,6 @@ def main():
 
     server.get_client(xbl_client)
 
-    #profile = xbl_client.profile.get_profile_by_gamertag('Major Nelson')
-    # print(profile.content)
-
-    if (os.getenv("FLASK")):
-        print("FLASK env variable is true")
-        server.run_dev()
-
 
 if __name__ == '__main__':
-    main()
+    authenticate()
