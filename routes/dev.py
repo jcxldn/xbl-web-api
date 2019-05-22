@@ -16,7 +16,7 @@ def reauth():
 def isauth():
     return jsonify({
         "authenticated": main.auth_mgr.authenticated,
-        "user": main.auth_mgr.userinfo.gamertag,
+        "gt": main.auth_mgr.userinfo.gamertag,
         "access": {
             "issued": main.auth_mgr.access_token.date_issued,
             "expires": main.auth_mgr.access_token.date_valid,
