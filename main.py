@@ -14,6 +14,7 @@ load_dotenv(find_dotenv())
 
 # Connect to Xbox Live and set a global client variable
 def authenticate():
+    global auth_mgr
     auth_mgr = AuthenticationManager()
     auth_mgr.email_address = os.getenv("XBL_EMAIL")
     auth_mgr.password = os.getenv("XBL_PASS")
