@@ -1,6 +1,7 @@
 import json
 import unittest
 import os
+import time
 
 import server
 import main
@@ -223,6 +224,40 @@ class TestMisc(BaseTest):
             with open("static/index.html") as f:
                 self.assertEqual(req.get_data(
                     as_text=True).replace("\r", ""), f.read())
+
+
+class TestDev(BaseTest):
+
+    def isTimestamp(self, str):
+        try:
+            time.strptime(str, '%a, %d %b %Y %H:%M:%S %Z')
+            # %a, %d %B %Y %T %Z - from strftime.net
+        except ValueError:
+            return False
+        else:
+            return True
+
+    def test_reauth(self):
+        with server.app.test_request_context():
+            req = self.app.get("/dev/reauth")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+            self.assertEqual(req.json["message"], "success")
+
+    def test_isauth_true(self):
+        with server.app.test_request_context():
+            req = self.app.get("/dev/isauth")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            self.assertEqual(req.json["authenticated"], True)
+            self.assertEqual(req.json["gt"], main.auth_mgr.userinfo.gamertag)
+
+            self.assertTrue(self.isTimestamp(req.json["access"]["expires"]))
+            self.assertTrue(self.isTimestamp(req.json["access"]["issued"]))
+
+            self.assertTrue(self.isTimestamp(req.json["user"]["expires"]))
+            self.assertTrue(self.isTimestamp(req.json["user"]["issued"]))
 
 
 if __name__ == '__main__':
