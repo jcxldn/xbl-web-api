@@ -4,6 +4,7 @@ import os
 import multiprocessing
 
 import main
+import scheduler
 
 loglevel = 'info'
 errorlog = "-"
@@ -23,3 +24,4 @@ capture_output = True
 
 # connect to xbox live
 main.authenticate()
+scheduler.setup()
