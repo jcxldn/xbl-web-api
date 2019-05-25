@@ -14,8 +14,9 @@ errorlog = "-"
 
 port = os.getenv("PORT") or 5000
 bind = '0.0.0.0:' + str(port)
-# workers = 1
-workers = multiprocessing.cpu_count() * 2 + 1
+workers = 1
+# 1 worker for now because of reauthing issues
+# workers = multiprocessing.cpu_count() * 2 + 1
 
 timeout = 3 * 60  # 3 minutes
 keepalive = 24 * 60 * 60  # 1 day
