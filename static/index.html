@@ -53,6 +53,17 @@
               data.sha
             }-blue.svg"></a>`
           );
+
+          // Add the API connected / authenticated badge
+          $.get("dev/isauth").then(data => {
+            const color = data.authenticated ? "brightgreen" : "red";
+
+            imgArea.append(
+              ` <img src="https://img.shields.io/badge/authenticated-${
+                data.authenticated
+              }-${color}.svg"></a>`
+            );
+          });
         });
       });
     </script>

@@ -224,6 +224,51 @@ class TestMisc(BaseTest):
             with open("static/index.html") as f:
                 self.assertEqual(req.get_data(
                     as_text=True).replace("\r", ""), f.read())
+    
+    def test_titleinfo(self):
+        with server.app.test_request_context():
+            # Forza Motorsport 6
+            req = self.app.get("/titleinfo/" + Data.titleidstats_params["titleID"])
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            data = req.json["titles"][0]
+
+            # Ensure the titleId matches
+            self.assertEqual(data["titleId"], Data.titleidstats_params["titleID"])
+            self.assertEqual(data["modernTitleId"], Data.titleidstats_params["titleID"])
+
+            # Ensure some data matches
+            self.assertEqual(data["name"], "Forza Motorsport 6")
+            self.assertEqual(data["type"], "Game")
+            self.assertEqual(data["mediaItemType"], "Application")
+            self.assertEqual(data["pfn"], "Microsoft.MonumentBaseGame_8wekyb3d8bbwe")
+            self.assertEqual(data["serviceConfigId"],
+                             "417d0100-b230-41cf-975d-3eaa64f9397e")
+    
+    def test_legacysearch(self):
+        with server.app.test_request_context():
+            # This will return some data, currently 9 items
+            req = self.app.get("/legacysearch/Halo")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            total_count = req.json["Totals"][0]["Count"]
+            self.assertEqual(len(req.json["Items"]), total_count)
+
+            self.assertEqual(total_count, 9)
+
+            self.assertEqual(req.json["Totals"][0]["Name"], "GameType")
+
+    def test_legacysearch_nodata(self):
+        with server.app.test_request_context():
+            # This will not return any results
+            req = self.app.get("/legacysearch/123456789")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            self.assertEqual(req.json["Totals"][0]["Name"], "GameType")
+            self.assertEqual(req.json["Totals"][0]["Count"], 0)
 
 
 class TestDev(BaseTest):
