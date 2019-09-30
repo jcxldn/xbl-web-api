@@ -1,6 +1,7 @@
 # xbl-web-api
 
 ![Jenkins](https://img.shields.io/jenkins/build/https/ci.prouser123.me/xbl-web-api?label=production%20build&logo=jenkins&logoColor=white)
+![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m782558122-d298b8bb4b0d1c15272b7ddf)
 [![coverage badge](https://img.shields.io/codecov/c/gh/prouser123/xbl-web-api.svg)](https://codecov.io/gh/Prouser123/xbl-web-api)
 ![python3 badge](https://img.shields.io/badge/python-3.7-blue.svg)
 
@@ -18,6 +19,8 @@ All routes return JSON unless otherwise specified.
 
   Search the Xbox 360 Marketplace.
 
+### Profiles
+
 - `/profile/xuid/<int:xuid>`
 
   Get a profile by the user's XUID.
@@ -34,6 +37,8 @@ All routes return JSON unless otherwise specified.
 
   Get profile settings (less data) by the user's gamertag.
 
+### User Stats
+
 - `/userstats/xuid/<int:xuid>/titleid/<int:titleid>`
 
   Get a user's stats for a game by Title ID and user XUID.
@@ -42,6 +47,8 @@ All routes return JSON unless otherwise specified.
 
   Get a user's stats for a game by Title ID and user gamertag.
 
+### XUIDs
+
 - `/xuid/<str:gamertag>`
 
   Get a user's XUID by their gamertag.
@@ -49,6 +56,8 @@ All routes return JSON unless otherwise specified.
 - `/xuid/<str:gamertag>/raw`
 
   Get a user's XUID by their gamertag and return as text.
+
+### Achievements
 
 - `/achievements/1/recent/<int:xuid>`
 
@@ -70,6 +79,6 @@ All routes return JSON unless otherwise specified.
 
   Get all earned / unlocked achievements for an Xbox 360 user from their XUID and the game's Title ID.
 
-- `/achievements/1/titleprogress/detail/<int:xuid>/<scid>/<int:achievementid>`
+- `/achievements/1/titleprogress/detail/<int:xuid>/<uuid:scid>/<int:achievementid>`
 
   Get the achievement details for an Xbox One user from their XUID, the game's SCID (Service Config ID) and an achievement ID.
