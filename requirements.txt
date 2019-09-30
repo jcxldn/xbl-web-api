@@ -1,4 +1,4 @@
 flask
-xbox-webapi
+xbox-webapi-ex
 python-dotenv
 apscheduler

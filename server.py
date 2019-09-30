@@ -64,3 +64,10 @@ def titleinfo(titleid):
 @app.route("/legacysearch/<query>")
 def search360(query):
     return res_as_json(xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content)
+
+
+@app.route("/gamertag/check/<gamertag>")
+def gamertagcheck(gamertag):
+    # See https://github.com/Prouser123/xbox-webapi-python/blob/master/xbox/webapi/api/provider/account.py
+    code = xbl_client.account.claim_gamertag(1, gamertag).status_code
+    return jsonify({"code": code, "available": "true" if code == 200 else "false"})

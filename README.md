@@ -19,6 +19,10 @@ All routes return JSON unless otherwise specified.
 
   Search the Xbox 360 Marketplace.
 
+- `/gamertag/check/<str:username>`
+
+  Check if the specified gamertag is available or taken.
+
 ### Profiles
 
 - `/profile/xuid/<int:xuid>`

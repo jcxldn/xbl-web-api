@@ -270,6 +270,24 @@ class TestMisc(BaseTest):
             self.assertEqual(req.json["Totals"][0]["Name"], "GameType")
             self.assertEqual(req.json["Totals"][0]["Count"], 0)
 
+    def test_gamertag_check(self):
+        with server.app.test_request_context():
+            req = self.app.get("/gamertag/check/Prouser123")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            self.assertEqual(req.json["available"], "false")
+            self.assertEqual(req.json["code"], 409)
+
+    def test_gamertag_check_free(self):
+        with server.app.test_request_context():
+            req = self.app.get("/gamertag/check/sdakjdwaskwad")
+            self.assertIs200(req)
+            self.assertIsJSON(req)
+
+            self.assertEqual(req.json["available"], "true")
+            self.assertEqual(req.json["code"], 200)
+
 
 class TestDev(BaseTest):
 
