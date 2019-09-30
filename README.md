@@ -49,3 +49,27 @@ All routes return JSON unless otherwise specified.
 - `/xuid/<str:gamertag>/raw`
 
   Get a user's XUID by their gamertag and return as text.
+
+- `/achievements/1/recent/<int:xuid>`
+
+  Get the recent Xbox One achievements for a user XUID.
+
+- `/achievements/360/recent/<int:xuid>`
+
+  Get the recent Xbox 360 achievements for a user XUID.
+
+- `/achievements/1/titleprogress/<int:xuid>/<int:titleid>`
+
+  Get all achievements (both unlocked and locked) for an Xbox One user from their XUID and the game's Title ID.
+
+- `/achievements/360/titleprogress/all/<int:xuid>/<int:titleid>`
+
+  Get all available achievements for an Xbox 360 user from their XUID and the game's Title ID.
+
+- `/achievements/360/titleprogress/earned/<int:xuid>/<int:titleid>`
+
+  Get all earned / unlocked achievements for an Xbox 360 user from their XUID and the game's Title ID.
+
+- `/achievements/1/titleprogress/detail/<int:xuid>/<scid>/<int:achievementid>`
+
+  Get the achievement details for an Xbox One user from their XUID, the game's SCID (Service Config ID) and an achievement ID.
