@@ -288,6 +288,14 @@ class TestMisc(BaseTest):
             self.assertEqual(req.json["available"], "true")
             self.assertEqual(req.json["code"], 200)
 
+    def test_usercolors_define(self):
+        with server.app.test_request_context():
+            req = self.app.get("/usercolors/define/1/2/3")
+            self.assertIs200(req)
+            self.assertEqual(req.mimetype, "image/svg+xml")
+            # TODO: Check the Response content
+
+
 
 class TestDev(BaseTest):
 

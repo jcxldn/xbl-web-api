@@ -5,6 +5,7 @@ import subprocess
 import routes.profile
 import routes.xuid
 import routes.userstats
+import routes.usercolors
 import routes.achievements
 import routes.dev
 
@@ -37,6 +38,7 @@ def get_routes():
 app.register_blueprint(routes.profile.app, url_prefix="/profile")
 app.register_blueprint(routes.xuid.app, url_prefix="/xuid")
 app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
+app.register_blueprint(routes.usercolors.app, url_prefix="/usercolors")
 app.register_blueprint(routes.achievements.app, url_prefix="/achievements")
 app.register_blueprint(routes.dev.app, url_prefix="/dev")
 

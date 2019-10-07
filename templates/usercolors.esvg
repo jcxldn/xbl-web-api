@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="510" height="510">
+  <rect x="6" y="6" rx="25" ry="25" width="150" height="150" style="fill:#{{primary}};opacity:1" />
+  <rect x="106" y="6" rx="25" ry="25" width="150" height="150" style="fill:#{{secondary}};opacity:1" />
+  <rect x="206" y="6" rx="25" ry="25" width="150" height="150" style="fill:#{{tertiary}};opacity:1" />
+  <rect x="5" y="5" width="350" height="150" rx="25" ry="25" style="stroke-width:5;stroke:black;fill:none"/>
+</svg>

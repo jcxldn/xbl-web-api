@@ -23,6 +23,10 @@ All routes return JSON unless otherwise specified.
 
   Check if the specified gamertag is available or taken.
 
+- `/usercolors/define/<str:primary>/<str:secondary>/<str:tertiary>`
+
+  Get an SVG representation of the defined colors.
+
 ### Profiles
 
 - `/profile/xuid/<int:xuid>`
