@@ -45,6 +45,16 @@ All routes return JSON unless otherwise specified.
 
   Get profile settings (less data) by the user's gamertag.
 
+### Presence
+
+- `/presence/xuid/<int:xuid>`
+
+  Get a user's presence (status) by their XUID.
+
+- `/presence/gamertag/<str:gamertag>`
+
+  Get a user's presence (status) by their gamertag.
+
 ### User Stats
 
 - `/userstats/xuid/<int:xuid>/titleid/<int:titleid>`

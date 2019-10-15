@@ -3,6 +3,7 @@ from flask import Flask, jsonify, send_from_directory
 import subprocess
 
 import routes.profile
+import routes.presence
 import routes.xuid
 import routes.userstats
 import routes.usercolors
@@ -36,6 +37,7 @@ def get_routes():
 
 # add routes / blueprints from other files
 app.register_blueprint(routes.profile.app, url_prefix="/profile")
+app.register_blueprint(routes.presence.app, url_prefix="/presence")
 app.register_blueprint(routes.xuid.app, url_prefix="/xuid")
 app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
 app.register_blueprint(routes.usercolors.app, url_prefix="/usercolors")
