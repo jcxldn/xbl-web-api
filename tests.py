@@ -200,6 +200,30 @@ class TestUserStats(BaseTest):
             self.assertIsValidTitleIdResponseNoStats(req)
 
 
+class TestFriends(BaseTest):
+    def assertIsValidSummaryResponse(self, req):
+        self.assertIs200(req)
+        self.assertIsJSON(req)
+        self.assertIn("followers", req.json)
+        self.assertIn("following", req.json)
+        self.assertTrue(isinstance(req.json["followers"], int))
+        self.assertTrue(isinstance(req.json["following"], int))
+
+    def test_summary_xuid(self):
+        with server.app.test_request_context():
+            req = self.app.get(
+                "/friends/summary/xuid/{}".format(Data.xuid_valid["xuid"]))
+            self.assertIsValidSummaryResponse(req)
+
+    def test_summary_gamertag(self):
+        with server.app.test_request_context():
+            req = self.app.get(
+                "/friends/summary/gamertag/{}".format(Data.xuid_valid["gamertag"]))
+            self.assertIsValidSummaryResponse(req)
+
+    # Probably a good idea to add invalid tests, see GH-1
+
+
 class TestMisc(BaseTest):
     def test_info(self):
         with server.app.test_request_context():

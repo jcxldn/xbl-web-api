@@ -45,6 +45,16 @@ All routes return JSON unless otherwise specified.
 
   Get profile settings (less data) by the user's gamertag.
 
+### Friends
+
+- `/friends/summary/xuid/<int:xuid>`
+
+  Get a user's friend summary (followers and following count) by their XUID.
+
+- `/friends/summary/gamertag/<gamertag>`
+
+  Get a user's friend summary (followers and following count) by their gamertag.
+
 ### Presence
 
 - `/presence/xuid/<int:xuid>`
