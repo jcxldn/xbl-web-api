@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
 
 import subprocess
 
@@ -13,6 +14,7 @@ import routes.dev
 
 app = Flask(__name__, static_folder=None)
 
+CORS(app)
 
 def get_client(main_xbl_client):
     global xbl_client
