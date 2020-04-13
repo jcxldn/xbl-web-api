@@ -21,7 +21,8 @@ node('docker-cli') {
 	
 	  stage('Coverage') {
 	    withCredentials([string(credentialsId: 'codecov.prouser123.xbl-web-api', variable: 'CODECOV_TOKEN')]) {
-	      sh 'codecov'
+		  // codecov needs the git plugin to properly resolve the report.
+	      sh 'apt update && apt install git -y && codecov'
 	    }
 	  }
     }
