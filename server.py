@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 
 import subprocess
+import os
 
 import routes.friends
 import routes.profile
@@ -28,7 +29,10 @@ def res_as_json(data):
 
 
 def get_sha():
-    return str(subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()).split("'")[1::2][0]
+    if 'GIT_COMMIT' in os.environ:
+        return os.getenv('GIT_COMMIT')
+    else:
+        return str(subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()).split("'")[1::2][0]
 
 
 def get_routes():
