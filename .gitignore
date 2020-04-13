@@ -102,6 +102,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-# PM2 Ecosystem
-ecosystem.config.js

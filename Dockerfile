@@ -4,6 +4,9 @@ FROM python:3-slim-buster
 ARG GIT_COMMIT
 ENV GIT_COMMIT=$GIT_COMMIT
 
+# Quicker logging, no buffer to go through first!
+ENV PYTHONUNBUFFERED=TRUE
+
 WORKDIR /app
 
 COPY requirements.txt ./
