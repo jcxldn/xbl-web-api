@@ -30,7 +30,7 @@ def res_as_json(data):
 
 def get_sha():
     if 'GIT_COMMIT' in os.environ:
-        return os.getenv('GIT_COMMIT')
+        return os.getenv('GIT_COMMIT')[0:7]
     else:
         return str(subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()).split("'")[1::2][0]
 
