@@ -10,7 +10,9 @@ node('docker-cli') {
 
       stage('Install') {
         unstash 'scm'
-	    sh 'pip install coverage codecov -r requirements.txt'
+		
+		// codecov needs the git plugin to properly resolve the report.
+	    sh 'apt update && apt install git -y  && pip install coverage codecov -r requirements.txt'
       }
 	
 	  stage('Test') {
@@ -21,8 +23,7 @@ node('docker-cli') {
 	
 	  stage('Coverage') {
 	    withCredentials([string(credentialsId: 'codecov.prouser123.xbl-web-api', variable: 'CODECOV_TOKEN')]) {
-		  // codecov needs the git plugin to properly resolve the report.
-	      sh 'apt update && apt install git -y && codecov'
+	      sh 'codecov'
 	    }
 	  }
     }
