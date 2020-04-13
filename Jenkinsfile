@@ -9,11 +9,8 @@ node('docker-cli') {
     useDockerImage('python:3-slim-buster') {
 
       stage('Install') {
-	    sh 'apt update && apt install git -y'
-	
         unstash 'scm'
-	    sh 'pip install -r requirements.txt'
-	    sh 'pip install coverage codecov'
+	    sh 'pip install coverage codecov -r requirements.txt'
       }
 	
 	  stage('Test') {
