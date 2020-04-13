@@ -12,7 +12,7 @@ node('docker-cli') {
         unstash 'scm'
 		
 		// codecov needs the git plugin to properly resolve the report.
-	    sh 'apt update && apt install git -y  && pip install coverage codecov -r requirements.txt'
+	    sh 'apt-get update && apt-get install git -y  && pip install coverage codecov -r requirements.txt'
       }
 	
 	  stage('Test') {
