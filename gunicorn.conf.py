@@ -13,7 +13,7 @@ errorlog = "-"
 
 
 port = os.getenv("PORT") or 5000
-bind = '127.0.0.1:' + str(port)
+bind = '0.0.0.0:' + str(port)
 workers = 1
 # 1 worker for now because of reauthing issues
 # workers = multiprocessing.cpu_count() * 2 + 1
