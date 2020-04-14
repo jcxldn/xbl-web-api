@@ -27,6 +27,14 @@ All routes return JSON unless otherwise specified.
 
   Get an SVG representation of the defined colors.
 
+- `/usercolors/get/xuid/<int:xuid>`
+
+  Get an SVG representation of the user's colors.
+
+- `/usercolors/get/gamertag/<gamertag>`
+
+  Get an SVG representation of the user's colors.
+
 ### Profiles
 
 - `/profile/xuid/<int:xuid>`

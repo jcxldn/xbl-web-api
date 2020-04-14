@@ -36,6 +36,10 @@ class Data():
 
 
 class BaseTest(unittest.TestCase):
+    def tearDown(self):
+        # After every test, sleep 0.5 seconds to hopefully avoid 429 responses. (Too Many Requests)
+        time.sleep(0.5)
+
     def printCurrentTest(self):
         # print(": " + self.id().split('.')[-1])
         print("\n" + self.id().split('__.')[1])
@@ -248,28 +252,32 @@ class TestMisc(BaseTest):
             with open("static/index.html") as f:
                 self.assertEqual(req.get_data(
                     as_text=True).replace("\r", ""), f.read())
-    
+
     def test_titleinfo(self):
         with server.app.test_request_context():
             # Forza Motorsport 6
-            req = self.app.get("/titleinfo/" + Data.titleidstats_params["titleID"])
+            req = self.app.get(
+                "/titleinfo/" + Data.titleidstats_params["titleID"])
             self.assertIs200(req)
             self.assertIsJSON(req)
 
             data = req.json["titles"][0]
 
             # Ensure the titleId matches
-            self.assertEqual(data["titleId"], Data.titleidstats_params["titleID"])
-            self.assertEqual(data["modernTitleId"], Data.titleidstats_params["titleID"])
+            self.assertEqual(
+                data["titleId"], Data.titleidstats_params["titleID"])
+            self.assertEqual(data["modernTitleId"],
+                             Data.titleidstats_params["titleID"])
 
             # Ensure some data matches
             self.assertEqual(data["name"], "Forza Motorsport 6")
             self.assertEqual(data["type"], "Game")
             self.assertEqual(data["mediaItemType"], "Application")
-            self.assertEqual(data["pfn"], "Microsoft.MonumentBaseGame_8wekyb3d8bbwe")
+            self.assertEqual(
+                data["pfn"], "Microsoft.MonumentBaseGame_8wekyb3d8bbwe")
             self.assertEqual(data["serviceConfigId"],
                              "417d0100-b230-41cf-975d-3eaa64f9397e")
-    
+
     def test_legacysearch(self):
         with server.app.test_request_context():
             # This will return some data, currently 9 items
@@ -319,6 +327,21 @@ class TestMisc(BaseTest):
             self.assertEqual(req.mimetype, "image/svg+xml")
             # TODO: Check the Response content
 
+    def test_usercolors_get_xuid(self):
+        with server.app.test_request_context():
+            req = self.app.get("/usercolors/get/xuid/" +
+                               Data.xuid_valid["xuid"])
+            self.assertIs200(req)
+            self.assertEqual(req.mimetype, "image/svg+xml")
+            # TODO: Check the Response content
+
+    def test_usercolors_get_gamertag(self):
+        with server.app.test_request_context():
+            req = self.app.get("/usercolors/get/gamertag/" +
+                               Data.xuid_valid["gamertag"])
+            self.assertIs200(req)
+            self.assertEqual(req.mimetype, "image/svg+xml")
+            # TODO: Check the Response content
 
 
 class TestDev(BaseTest):
