@@ -22,8 +22,8 @@ class Data():
     }
 
     titleidstats_params = {
-        # Prouser123 has stats for Forza Motorsport 6
-        "gamertag": "Prouser123",
+        # jcxLDN has stats for Forza Motorsport 6
+        "gamertag": "jcxLDN",
         "xuid": "2535469727531765",
         "titleID": "1694054782"
     }
