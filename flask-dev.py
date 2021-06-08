@@ -7,11 +7,9 @@ import os
 
 import main
 import server
-import scheduler
 
 # auth with Xbox Live
 main.authenticate()
-scheduler.setup()
 
 # start the flask server
 port = os.getenv("PORT") or 3000

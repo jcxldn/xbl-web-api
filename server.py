@@ -1,9 +1,11 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
 
 import subprocess
 import os
 
+import main
 import routes.friends
 import routes.profile
 import routes.presence
@@ -15,6 +17,26 @@ import routes.dev
 
 app = Flask(__name__, static_folder=None)
 
+# Init scheduler
+scheduler = APScheduler()
+# Set option
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+
+# Add timed reauth job
+@scheduler.task('interval', id='do_timed_reauth_hourly', hours=1)
+def timed_reauth():
+    print('[Timed ReAuth] Authenticated: ' + str(main.auth_mgr.authenticated))
+    if not main.auth_mgr.authenticated:
+        print('[Timed ReAuth] Not authenticated, authenticating!')
+        main.authenticate()
+
+@scheduler.task('interval', id='hello_60s', seconds=60)
+def hello60():
+    print("Hello 60s!")
+
+# Setup CORS
 CORS(app)
 
 def get_client(main_xbl_client):
