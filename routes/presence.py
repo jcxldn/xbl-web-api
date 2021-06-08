@@ -12,8 +12,10 @@ def getSinglePresence(xuid):
 
 
 @app.route("/xuid/<int:xuid>")
+@server.cache.cached(timeout=300)
 def xuid(xuid):
-    return server.res_as_json(getSinglePresence(xuid))
+    print("uwu")
+    return server.res_as_cached_json(getSinglePresence(xuid))
 
 
 @app.route("/gamertag/<gamertag>")
@@ -25,4 +27,4 @@ def gamertag(gamertag):
     data["gamertag"] = gamertag
 
     # Dump (stringify) the data and send it as the response
-    return server.res_as_json(json.dumps(data))
+    return server.res_as_cached_json(json.dumps(data))

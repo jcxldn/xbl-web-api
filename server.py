@@ -1,6 +1,8 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_apscheduler import APScheduler
+
+from cache import cache, add_cache_headers, default_secs
 
 import subprocess
 import os
@@ -24,6 +26,9 @@ scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
 
+# Init caching
+cache.init_app(app)
+
 # Add timed reauth job
 @scheduler.task('interval', id='do_timed_reauth_hourly', hours=1)
 def timed_reauth():
@@ -39,6 +44,15 @@ def hello60():
 # Setup CORS
 CORS(app)
 
+# Setup after_request to add caching headers
+@app.after_request
+def after_request(res):
+    res.add_etag()
+    res.make_conditional(request) # unsure if required
+    res.cache_control.max_age = default_secs
+    res.cache_control.public = True
+    return res
+
 def get_client(main_xbl_client):
     global xbl_client
     xbl_client = main_xbl_client
@@ -46,6 +60,10 @@ def get_client(main_xbl_client):
 
 def res_as_json(data):
     return app.response_class(response=data, mimetype='application/json')
+
+# res_as_json but also adds cache headers
+def res_as_cached_json(data):
+    return add_cache_headers(res_as_json(data))
 
 # Get the short SHA and return as string
 
