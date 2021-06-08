@@ -4,7 +4,6 @@ import os
 import multiprocessing
 
 import main
-import scheduler
 
 loglevel = 'info'
 errorlog = "-"
@@ -26,4 +25,3 @@ enable_stdio_inheritance = True
 
 # connect to xbox live
 main.authenticate()
-scheduler.setup()
