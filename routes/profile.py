@@ -3,25 +3,28 @@ from flask import Blueprint, jsonify
 import server
 import routes.xuid
 
+from cached_route import CachedRoute
+
 app = Blueprint(__name__.split(".")[1], __name__)
+cr = CachedRoute(app)
 
 
 # Profile Settings Routes (these don't have as much info)
 
 
-@app.route("/settings/gamertag/<gamertag>")
+@cr.jsonified_route("/settings/gamertag/<gamertag>")
 def settings_gamertag(gamertag):
-    return server.res_as_json(server.xbl_client.profile.get_profile_by_gamertag(gamertag).content)
+    return server.xbl_client.profile.get_profile_by_gamertag(gamertag).content
 
 
-@app.route("/settings/xuid/<int:xuid>")
+@cr.jsonified_route("/settings/xuid/<int:xuid>")
 def settings_xuid(xuid):
-    return server.res_as_json(server.xbl_client.profile.get_profile_by_xuid(xuid).content)
+    return server.xbl_client.profile.get_profile_by_xuid(xuid).content
 
 
 # Profile Routes
 
-@app.route("/xuid/<int:xuid>")
+@cr.jsonified_route("/xuid/<int:xuid>")
 def xuid(xuid):
     # Check if the XUID is valid, and if not, return an error
     if (not routes.xuid.isXUID(xuid)):
@@ -32,10 +35,11 @@ def xuid(xuid):
     if (req.status_code == 400):
         return jsonify({"error": 404, "message": "user not found"}), 404
     # return the usual response if there were no issues
-    return server.res_as_json(req.content)
+    return req.content
 
 
-@app.route("/gamertag/<gamertag>")
+# Not using jsonified_route as xuid is already using it
+@cr.route("/gamertag/<gamertag>")
 def gamertag(gamertag):
     # make the request
     req = routes.xuid.gamertag_to_xuid_raw(gamertag)

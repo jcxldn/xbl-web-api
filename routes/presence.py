@@ -13,13 +13,13 @@ def getSinglePresence(xuid):
     return server.xbl_client.presence.get_presence(str(xuid)).content
 
 
-@cr.route("/xuid/<int:xuid>")
+@cr.jsonified_route("/xuid/<int:xuid>")
 def xuid(xuid):
     print("uwu")
-    return server.res_as_json(getSinglePresence(xuid))
+    return getSinglePresence(xuid)
 
 
-@cr.route("/gamertag/<gamertag>")
+@cr.jsonified_route("/gamertag/<gamertag>")
 def gamertag(gamertag):
     # Get the data from the client as a python JSON object
     data = json.loads(getSinglePresence(
@@ -28,4 +28,4 @@ def gamertag(gamertag):
     data["gamertag"] = gamertag
 
     # Dump (stringify) the data and send it as the response
-    return server.res_as_json(json.dumps(data))
+    return json.dumps(data)
