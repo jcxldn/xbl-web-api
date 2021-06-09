@@ -4,21 +4,22 @@ import json
 import server
 import routes.xuid
 
-app = Blueprint(__name__.split(".")[1], __name__)
+from cached_route import CachedRoute
 
+app = Blueprint(__name__.split(".")[1], __name__)
+cr = CachedRoute(app)
 
 def getSinglePresence(xuid):
     return server.xbl_client.presence.get_presence(str(xuid)).content
 
 
-@app.route("/xuid/<int:xuid>")
-@server.cache.cached(timeout=300)
+@cr.route("/xuid/<int:xuid>")
 def xuid(xuid):
     print("uwu")
-    return server.res_as_cached_json(getSinglePresence(xuid))
+    return server.res_as_json(getSinglePresence(xuid))
 
 
-@app.route("/gamertag/<gamertag>")
+@cr.route("/gamertag/<gamertag>")
 def gamertag(gamertag):
     # Get the data from the client as a python JSON object
     data = json.loads(getSinglePresence(
@@ -27,4 +28,4 @@ def gamertag(gamertag):
     data["gamertag"] = gamertag
 
     # Dump (stringify) the data and send it as the response
-    return server.res_as_cached_json(json.dumps(data))
+    return server.res_as_json(json.dumps(data))
