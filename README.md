@@ -1,6 +1,6 @@
 # xbl-web-api
 
-![Jenkins](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.jcx.ovh%2Fjob%2Fxbl-web-api%2Fjob%2Fmaster&label=production%20build%20%28master%29&logo=jenkins&logoColor=white)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Prouser123/xbl-web-api/build?logo=github&logoColor=white)
 ![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m782558122-d298b8bb4b0d1c15272b7ddf)
 [![coverage badge](https://img.shields.io/codecov/c/gh/prouser123/xbl-web-api.svg)](https://codecov.io/gh/Prouser123/xbl-web-api)
 ![python3 badge](https://img.shields.io/badge/python-3.7-blue.svg)
