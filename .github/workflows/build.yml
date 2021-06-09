@@ -61,4 +61,4 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6 \
             --output "type=image,push=$([[ $GITHUB_REF == "refs/heads/master" ]] && echo true || echo false)" \
-            -t jcxldn/xbl-web-api:latest .
+            --build-arg GIT_COMMIT=$GITHUB_SHA -t jcxldn/xbl-web-api:latest .
