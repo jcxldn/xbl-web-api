@@ -28,6 +28,7 @@ scheduler.start()
 
 # Init caching
 cache.init_app(app)
+cache.clear()
 
 # Add timed reauth job
 @scheduler.task('interval', id='do_timed_reauth_hourly', hours=1)
