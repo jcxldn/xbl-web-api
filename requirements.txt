@@ -4,3 +4,4 @@ python-dotenv
 flask-cors
 Flask-APScheduler
 flask-caching
+coloredlogs
