@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_apscheduler import APScheduler
 
 from cache import cache, add_cache_headers, default_secs
+from cached_route import CachedRoute
 
 import subprocess
 import os
@@ -18,6 +19,8 @@ import routes.achievements
 import routes.dev
 
 app = Flask(__name__, static_folder=None)
+# Get a CachedRoute instance for routes defined in this file
+cr = CachedRoute(app)
 
 # Init scheduler
 scheduler = APScheduler()
@@ -48,6 +51,7 @@ CORS(app)
 # Setup after_request to add caching headers
 @app.after_request
 def after_request(res):
+    res.direct_passthrough = False  # https://github.com/pallets/flask/issues/993
     res.add_etag()
     res.make_conditional(request) # unsure if required
     res.cache_control.max_age = default_secs
@@ -59,16 +63,7 @@ def get_client(main_xbl_client):
     xbl_client = main_xbl_client
 
 
-def res_as_json(data):
-    return app.response_class(response=data, mimetype='application/json')
-
-# res_as_json but also adds cache headers
-def res_as_cached_json(data):
-    return add_cache_headers(res_as_json(data))
-
 # Get the short SHA and return as string
-
-
 def get_sha():
     if 'GIT_COMMIT' in os.environ:
         return os.getenv('GIT_COMMIT')[0:7]
@@ -104,22 +99,22 @@ def readme():
     return send_from_directory("./", "README.md")
 
 
-@app.route("/info")
+@cr.route("/info")
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
-@app.route("/titleinfo/<int:titleid>")
+@cr.jsonified_route("/titleinfo/<int:titleid>")
 def titleinfo(titleid):
-    return res_as_json(xbl_client.titlehub.get_title_info(titleid).content)
+    return xbl_client.titlehub.get_title_info(titleid).content
 
 
-@app.route("/legacysearch/<query>")
+@cr.jsonified_route("/legacysearch/<query>")
 def search360(query):
-    return res_as_json(xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content)
+    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
 
 
-@app.route("/gamertag/check/<gamertag>")
+@cr.route("/gamertag/check/<gamertag>")
 def gamertagcheck(gamertag):
     # See https://github.com/Prouser123/xbox-webapi-python/blob/master/xbox/webapi/api/provider/account.py
     code = xbl_client.account.claim_gamertag(1, gamertag).status_code
