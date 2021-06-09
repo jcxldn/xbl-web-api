@@ -45,7 +45,7 @@ class CachedRoute:
             return self.app.route(path)(cache.cache.cached(timeout)(self.__addHeaders__(func)))
         return dec
     
-    def jsonRoute(self, path, timeout=300):
+    def jsonified_route(self, path, timeout=300):
         def dec(func):
             return self.route(path, timeout)(self.__makeJsonResponse__(func))
         return dec
