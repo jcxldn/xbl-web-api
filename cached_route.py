@@ -1,30 +1,30 @@
 import functools
+import logging
+
+# Get a logger instance
+logger = logging.getLogger(__name__)
 
 import cache
 
 class CachedRoute:
+    # Class init takes blueprint argument
     def __init__(self, app):
-        print(app)
         self.app = app
 
     def __addHeaders__(self, func):
         @functools.wraps(func)
         def wrapper_decorator(*args, **kwargs):
-            print("----- addHeaders -----")
-            # Do something before
-            print("before")
+            # Call the function
             value = func(*args, **kwargs)
-            print("after")
-            print(value)
-            # Do something after
-            print("----- addHeaders -----")
+            # Debug log the return type
+            logger.debug("__addHeaders__:func return '%s'" % str(value))
+            # Return the function output (<Response>) wrapped in add_cache_headers
             return cache.add_cache_headers(value)
         return wrapper_decorator
 
     def route(self, path, timeout=300):
         def dec(func):
-            print("[CachedRoute] Registering path '%s' with timeout '%is'" % (path, timeout))
-            #return cache.cached(timeout)(addHeaders(func))
+            logger.debug("Registering route '%s' with cache timeout '%is'" % (path, timeout))
             return self.app.route(path)(cache.cache.cached(timeout)(self.__addHeaders__(func)))
         return dec
     
