@@ -5,7 +5,7 @@ import base64
 
 default_secs = 300
 
-cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp'})
+cache = Cache(config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '/tmp/xbl-web-api'})
 
 def add_cache_headers(res):
     print("Adding cache headers...")
