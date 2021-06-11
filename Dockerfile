@@ -5,7 +5,14 @@ ARG GIT_COMMIT
 ENV GIT_COMMIT=$GIT_COMMIT
 
 # Quicker logging, no buffer to go through first!
-ENV PYTHONUNBUFFERED=TRUE
+ENV PYTHONUNBUFFERED=1
+# Disable pip version checking on every command invoke
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+# Disable the pip cache to save on image space
+ENV PIP_NO_CACHE_DIR=1
+
+# Use a non-root account (we don't have any persistent data so don't need to worry about perms)
+USER runner
 
 WORKDIR /app
 
