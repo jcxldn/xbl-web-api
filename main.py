@@ -1,8 +1,12 @@
 import sys
 import os
+import time
+import asyncio
 
+from aiohttp import ClientSession
 from xbox.webapi.api.client import XboxLiveClient
 from xbox.webapi.authentication.manager import AuthenticationManager
+from xbox.webapi.authentication.models import OAuth2TokenResponse
 from xbox.webapi.common.exceptions import AuthenticationException
 
 import server
@@ -12,27 +16,54 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 
+# "RuntimeError: Event loop is closed" fix
+# src: https://stackoverflow.com/a/45600858
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
 # Connect to Xbox Live and set a global client variable
-def authenticate():
-    global auth_mgr
-    auth_mgr = AuthenticationManager()
-    auth_mgr.email_address = os.getenv("XBL_EMAIL")
-    auth_mgr.password = os.getenv("XBL_PASS")
-    # Attempt to login
+async def authenticate():
+    session = ClientSession()
+    tokens_file_path = os.getenv("XBL_TOKENS_PATH")
+
+    # Init the AuthenticationManager with a ClientSession, client id & secret
+    auth_mgr = AuthenticationManager(
+        session, client_id=os.getenv("XBL_CID"), client_secret=os.getenv("XBL_CSEC"), redirect_uri=""
+    )
+
+    # Attempt to load the authentication tokens from disk
     try:
-        auth_mgr.authenticate(do_refresh=True)
-    except AuthenticationException as e:
-        print('Email/Password authentication failed! Err: %s' % e)
+        with open(tokens_file_path, mode="r") as f:
+            tokens = f.read()
+        auth_mgr.oauth = OAuth2TokenResponse.parse_raw(tokens)
+    except FileNotFoundError:
+        print("Err loading tokens!")
         sys.exit(-1)
+        
+    # Attempt to refresh tokens if required
+    try:
+        await auth_mgr.refresh_tokens()
+    except ClientResponseError:
+        print("Could not refresh tokens!")
+        sys.exit(-1)
+        
+    # Save the refreshed tokens to disk
+    with open(tokens_file_path, mode="w") as f:
+        f.write(auth_mgr.oauth.json())
+        print("Saved refreshed tokens to disk!")
+        
+    # Init the XboxLiveClient
+    xbl_client = XboxLiveClient(auth_mgr)
 
-    print('Logged in as: %s' % auth_mgr.userinfo.gamertag)
+    xbl_client._xbl_web_api_lastauth = time.time()
 
-    # Create the XboxLiveClient
-    xbl_client = XboxLiveClient(
-        auth_mgr.userinfo.userhash, auth_mgr.xsts_token.jwt, auth_mgr.userinfo.xuid)
+    print("Logged in as '%s' (%s) " % (
+        xbl_client._auth_mgr.xsts_token.gamertag,
+        xbl_client._auth_mgr.xsts_token.xuid
+    ))
 
     server.get_client(xbl_client)
 
 
 if __name__ == '__main__':
-    authenticate()
+    asyncio.run(authenticate())

@@ -7,23 +7,16 @@ app = Blueprint(__name__.split(".")[1], __name__)
 
 
 @app.route("/reauth")
-def reauth():
-    main.authenticate()
+async def reauth():
+    await server.xbl_client._auth_mgr.refresh_tokens()
     return jsonify({"message": "success"})
 
 
 @app.route("/isauth")
 def isauth():
+    oauth = server.xbl_client._auth_mgr.oauth.is_valid()
+    user = server.xbl_client._auth_mgr.user_token.is_valid()
+    xsts = server.xbl_client._auth_mgr.xsts_token.is_valid()
     return jsonify({
-        "authenticated": main.auth_mgr.authenticated,
-        "gt": main.auth_mgr.userinfo.gamertag,
-        "access": {
-            "issued": main.auth_mgr.access_token.date_issued,
-            "expires": main.auth_mgr.access_token.date_valid,
-            "valid": main.auth_mgr.access_token.is_valid
-        },
-        "user": {
-            "issued": main.auth_mgr.user_token.date_issued,
-            "expires": main.auth_mgr.user_token.date_valid,
-            "valid": main.auth_mgr.user_token.is_valid
-        }})
+        "authenticated": oauth and user and xsts,
+        })

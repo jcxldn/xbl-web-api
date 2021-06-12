@@ -25,15 +25,15 @@ def isXUID(xuid):
 
 # TODO: Does not work correctly when called in other routes while using @cr.route - flask-caching related?
 @app.route("/<gamertag>/raw")
-def gamertag_to_xuid_raw(gamertag):
+async def gamertag_to_xuid_raw(gamertag):
     # make the request
-    req = server.xbl_client.profile.get_profile_by_gamertag(gamertag)
+    profile_response = await server.xbl_client.profile.get_profile_by_gamertag(gamertag)
     # if there were any errors, return the error code
-    if (req.status_code != 200):
-        message = "user not found" if req.status_code == 404 else ""
-        return jsonify({"error": req.status_code, "message": message, "gamertag": gamertag}), req.status_code
+    #if (req.status_code != 200):
+    #    message = "user not found" if req.status_code == 404 else ""
+    #    return jsonify({"error": req.status_code, "message": message, "gamertag": gamertag}), req.status_code
     # if there were no errors, return the bit of the response we want
-    return json.loads(req.content)["profileUsers"][0]["id"]
+    return json.loads(profile_response.profile_users)[0]["id"]
 
 
 @cr.route("/<gamertag>")

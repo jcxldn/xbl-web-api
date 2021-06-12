@@ -1,5 +1,5 @@
-flask
-xbox-webapi-ex==1.1.9
+flask[async]
+xbox-webapi==2.0.11
 python-dotenv
 flask-cors
 Flask-APScheduler
