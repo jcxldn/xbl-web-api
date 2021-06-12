@@ -5,6 +5,7 @@ from flask_apscheduler import APScheduler
 from cache import cache, add_cache_headers, default_secs
 from cached_route import CachedRoute
 
+import asyncio
 import subprocess
 import os
 
@@ -34,12 +35,10 @@ cache.init_app(app)
 cache.clear()
 
 # Add timed reauth job
-@scheduler.task('interval', id='do_timed_reauth_hourly', hours=1)
+@scheduler.task('interval', id='refresh_tokens', hours=1)
 def timed_reauth():
-    print('[Timed ReAuth] Authenticated: ' + str(main.auth_mgr.authenticated))
-    if not main.auth_mgr.authenticated:
-        print('[Timed ReAuth] Not authenticated, authenticating!')
-        main.authenticate()
+    # This async function will refresh the tokens only *if* they are unavailable or expired
+    asyncio.run(xbl_client._auth_mgr.refresh_tokens())
 
 @scheduler.task('interval', id='hello_60s', seconds=60)
 def hello60():
