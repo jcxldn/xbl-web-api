@@ -24,8 +24,8 @@ cr = CachedRoute(app)
 
 # Init scheduler
 scheduler = APScheduler()
-# Set option
-scheduler.api_enabled = True
+# Set options
+scheduler.api_enabled = False
 scheduler.init_app(app)
 scheduler.start()
 
