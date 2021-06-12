@@ -11,6 +11,7 @@ import routes.xuid
 from cached_route import CachedRoute
 
 app = Blueprint(__name__.split(".")[1], __name__)
+# Note: 1 day cache (86400s) on all routes in this file
 cr = CachedRoute(app)
 
 
@@ -20,12 +21,12 @@ def usercolors(primary, secondary, tertiary, *headers):
     return Response(r, mimetype="image/svg+xml", headers=headers)
 
 
-@cr.route("/define/<primary>/<secondary>/<tertiary>")
+@cr.route("/define/<primary>/<secondary>/<tertiary>", 86400)
 def define(primary, secondary, tertiary):
     return usercolors(primary, secondary, tertiary)
 
 
-@cr.route("/get/xuid/<int:xuid>")
+@cr.route("/get/xuid/<int:xuid>", 86400)
 def getXuid(xuid):
     profileData = json.loads((routes.profile.xuid(xuid)).data)
     colorObj = profileData["profileUsers"][0]["settings"][9]
@@ -56,7 +57,7 @@ def getXuid(xuid):
         return jsonify({"error": 500, "message": "preferredColor not found"}), 500
 
 
-@cr.route("/get/gamertag/<gamertag>")
+@cr.route("/get/gamertag/<gamertag>", 86400)
 def getGamertag(gamertag):
     # make the request
     req = routes.xuid.gamertag_to_xuid_raw(gamertag)

@@ -99,22 +99,23 @@ def readme():
     return send_from_directory("./", "README.md")
 
 
-@cr.route("/info")
+# Note: 1 day cache (86400s) on following routes
+@cr.route("/info", 86400)
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
-@cr.jsonified_route("/titleinfo/<int:titleid>")
+@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 def titleinfo(titleid):
     return xbl_client.titlehub.get_title_info(titleid).content
 
 
-@cr.jsonified_route("/legacysearch/<query>")
+@cr.jsonified_route("/legacysearch/<query>", 86400)
 def search360(query):
     return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
 
 
-@cr.route("/gamertag/check/<gamertag>")
+@cr.route("/gamertag/check/<gamertag>", 86400)
 def gamertagcheck(gamertag):
     # See https://github.com/Prouser123/xbox-webapi-python/blob/master/xbox/webapi/api/provider/account.py
     code = xbl_client.account.claim_gamertag(1, gamertag).status_code
