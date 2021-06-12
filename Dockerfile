@@ -16,9 +16,9 @@ ENV PIP_NO_CACHE_DIR=1
 # Creates a system user with uid 901 inside the container
 RUN groupadd -r app -g 901 && \
     useradd -l -u 901 -r -g app -m -d /home/app -s /sbin/nologin app
-USER runner
+USER app
 
-WORKDIR /app
+WORKDIR /home/app
 
 COPY requirements.txt ./
 
