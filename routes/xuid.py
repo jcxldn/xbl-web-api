@@ -4,7 +4,10 @@ import json
 
 import server
 
+from cached_route import CachedRoute
+
 app = Blueprint(__name__.split(".")[1], __name__)
+cr = CachedRoute(app)
 
 
 def isInt(value):
@@ -20,6 +23,7 @@ def isXUID(xuid):
     return True if len(str(xuid)) == 16 else False
 
 
+# TODO: Does not work correctly when called in other routes while using @cr.route - flask-caching related?
 @app.route("/<gamertag>/raw")
 def gamertag_to_xuid_raw(gamertag):
     # make the request
@@ -32,7 +36,7 @@ def gamertag_to_xuid_raw(gamertag):
     return json.loads(req.content)["profileUsers"][0]["id"]
 
 
-@app.route("/<gamertag>")
+@cr.route("/<gamertag>")
 def gamertag_to_xuid(gamertag):
     # make the request
     req = gamertag_to_xuid_raw(gamertag)

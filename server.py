@@ -1,6 +1,9 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_apscheduler import APScheduler
+
+from cache import cache, add_cache_headers, default_secs
+from cached_route import CachedRoute
 
 import subprocess
 import os
@@ -16,6 +19,8 @@ import routes.achievements
 import routes.dev
 
 app = Flask(__name__, static_folder=None)
+# Get a CachedRoute instance for routes defined in this file
+cr = CachedRoute(app)
 
 # Init scheduler
 scheduler = APScheduler()
@@ -23,6 +28,10 @@ scheduler = APScheduler()
 scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
+
+# Init caching
+cache.init_app(app)
+cache.clear()
 
 # Add timed reauth job
 @scheduler.task('interval', id='do_timed_reauth_hourly', hours=1)
@@ -39,17 +48,22 @@ def hello60():
 # Setup CORS
 CORS(app)
 
+# Setup after_request to add caching headers
+@app.after_request
+def after_request(res):
+    res.direct_passthrough = False  # https://github.com/pallets/flask/issues/993
+    res.add_etag()
+    res.make_conditional(request) # unsure if required
+    res.cache_control.max_age = default_secs
+    res.cache_control.public = True
+    return res
+
 def get_client(main_xbl_client):
     global xbl_client
     xbl_client = main_xbl_client
 
 
-def res_as_json(data):
-    return app.response_class(response=data, mimetype='application/json')
-
 # Get the short SHA and return as string
-
-
 def get_sha():
     if 'GIT_COMMIT' in os.environ:
         return os.getenv('GIT_COMMIT')[0:7]
@@ -85,22 +99,23 @@ def readme():
     return send_from_directory("./", "README.md")
 
 
-@app.route("/info")
+# Note: 1 day cache (86400s) on following routes
+@cr.route("/info", 86400)
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
-@app.route("/titleinfo/<int:titleid>")
+@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 def titleinfo(titleid):
-    return res_as_json(xbl_client.titlehub.get_title_info(titleid).content)
+    return xbl_client.titlehub.get_title_info(titleid).content
 
 
-@app.route("/legacysearch/<query>")
+@cr.jsonified_route("/legacysearch/<query>", 86400)
 def search360(query):
-    return res_as_json(xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content)
+    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
 
 
-@app.route("/gamertag/check/<gamertag>")
+@cr.route("/gamertag/check/<gamertag>", 86400)
 def gamertagcheck(gamertag):
     # See https://github.com/Prouser123/xbox-webapi-python/blob/master/xbox/webapi/api/provider/account.py
     code = xbl_client.account.claim_gamertag(1, gamertag).status_code

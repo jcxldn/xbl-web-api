@@ -4,6 +4,10 @@
 # flask is NOT suitable in a production environment
 
 import os
+import coloredlogs
+
+# Setup logging
+coloredlogs.install(level='DEBUG')
 
 import main
 import server
