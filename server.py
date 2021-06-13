@@ -29,7 +29,7 @@ app = Quart(__name__, static_folder=None)
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
 # Get a CachedRoute instance for routes defined in this file
-cr = CachedRoute(app)
+cr = CachedRoute(app, loop)
 
 # Init scheduler
 #scheduler = APScheduler()
@@ -56,17 +56,6 @@ cache.clear()
 #CORS(app)
 
 # Setup after_request to add caching headers
-@app.after_request
-async def after_request(res):
-    print("AREQ")
-    print(res)
-    print("AREQ")
-    #res.direct_passthrough = False  # https://github.com/pallets/flask/issues/993
-    #await res.add_etag()
-    #res.make_conditional(request) # unsure if required
-    #res.cache_control.max_age = default_secs
-    #res.cache_control.public = True
-    return res
 
 def get_client(main_xbl_client):
     global xbl_client
@@ -117,10 +106,15 @@ def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
-@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
+from providers.QuartDecoratorProvider import QuartDecorator
+
+q = QuartDecorator(app, loop)
+
+@q.router("/titleinfo/<int:titleid>", 86400)
+#@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 async def titleinfo(titleid):
     print("IN TITLEINFO")
-    return await xbl_client.titlehub.get_title_info(titleid)
+    return (await xbl_client.titlehub.get_title_info(titleid)).json()
 
 
 @cr.jsonified_route("/legacysearch/<query>", 86400)

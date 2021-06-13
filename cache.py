@@ -1,3 +1,4 @@
+import quart.flask_patch
 from quart import Response
 from flask_caching import Cache
 

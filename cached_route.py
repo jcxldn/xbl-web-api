@@ -1,3 +1,4 @@
+import quart.flask_patch
 from quart import Response
 
 import functools
@@ -8,10 +9,9 @@ logger = logging.getLogger(__name__)
 
 import cache
 
-class CachedRoute:
-    # Class init takes blueprint argument
-    def __init__(self, app):
-        self.app = app
+from providers.QuartDecoratorProvider import QuartDecorator
+
+class CachedRoute(QuartDecorator):
 
     def __addHeaders__(self, func):
         @functools.wraps(func)
@@ -28,7 +28,8 @@ class CachedRoute:
         @functools.wraps(func)
         def wrapper_decorator(*args, **kwargs):
             # Call the function
-            data = func(*args, **kwargs)
+            #data = self.call(func(*args, **kwargs))
+            data = self.call_async_wait(func, *args, **kwargs)
             # Check if the returned data is a tuple
             if isinstance(data, tuple):
                 # If we get a tuple, it is likely a response + http status code, so we'll just return it
@@ -49,7 +50,7 @@ class CachedRoute:
     def route(self, path, timeout=300):
         def dec(func):
             logger.debug("Registering route '%s' with cache timeout '%is'" % (path, timeout))
-            return self.app.route(path)(cache.cache.cached(timeout)(self.__addHeaders__(func)))
+            return self.app.route(path)(self.__addHeaders__(func))
         return dec
 
     def jsonified_route(self, path, timeout=300):
