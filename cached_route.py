@@ -1,4 +1,4 @@
-from flask import Response
+from quart import Response
 
 import functools
 import logging

@@ -1,4 +1,4 @@
-from flask import Response
+from quart import Response
 from flask_caching import Cache
 
 import time
