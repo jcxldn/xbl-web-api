@@ -4,3 +4,4 @@ xbox-webapi==2.0.11
 python-dotenv
 flask-caching
 coloredlogs
+pyhumps

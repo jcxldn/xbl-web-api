@@ -107,14 +107,16 @@ def info():
 
 
 from providers.QuartDecoratorProvider import QuartDecorator
+from providers.XblDecoratorProvider import XblDecorator
 
 q = QuartDecorator(app, loop)
+x = XblDecorator(app, loop)
 
-@q.router("/titleinfo/<int:titleid>", 86400)
+@x.openXboxRoute("/titleinfo/<int:titleid>", 86400)
 #@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 async def titleinfo(titleid):
     print("IN TITLEINFO")
-    return (await xbl_client.titlehub.get_title_info(titleid)).json()
+    return await xbl_client.titlehub.get_title_info(titleid)
 
 
 @cr.jsonified_route("/legacysearch/<query>", 86400)
