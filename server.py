@@ -6,6 +6,8 @@ from quart import Quart, jsonify, send_from_directory, request
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 #from flask_cors import CORS
 
 from cache import cache, add_cache_headers, default_secs
@@ -14,6 +16,7 @@ from cached_route import CachedRoute
 import asyncio
 import subprocess
 import os
+import logging
 
 import main
 #import routes.friends
@@ -32,6 +35,9 @@ app = Quart(__name__, static_folder=None)
 # auth me uwu
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
+# Setup & start the scheduler
+scheduler = AsyncIOScheduler(event_loop=loop)
+scheduler.start()
 # Get a CachedRoute instance for routes defined in this file
 cr = CachedRoute(app, loop)
 
@@ -45,12 +51,20 @@ cr = CachedRoute(app, loop)
 # Init caching
 cache.init_app(app)
 cache.clear()
-#
-## Add timed reauth job
-#@scheduler.task('interval', id='refresh_tokens', hours=1)
-#def timed_reauth():
-#    # This async function will refresh the tokens only *if* they are unavailable or expired
-#    asyncio.run(xbl_client._auth_mgr.refresh_tokens())
+
+# Define scheduled tasks
+sched_logger = logging.getLogger("sched.timed_reauth")
+@scheduler.scheduled_job('interval', minutes=1)
+async def job_timed_reauth():
+    is_same_loop = asyncio.get_running_loop() is loop
+    if (is_same_loop):
+        sched_logger.debug("In the same event loop! Refreshing tokens if needed...")
+        # This async function will refresh the tokens only *if* they are unavailable or expired
+        await xbl_client._auth_mgr.refresh_tokens()
+    else:
+        sched_logger.error("Not in the same event loop!")
+        raise RuntimeError("Timed Reauth not in same loop!")
+
 #
 #@scheduler.task('interval', id='hello_60s', seconds=60)
 #def hello60():

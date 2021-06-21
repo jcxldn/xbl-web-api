@@ -5,3 +5,4 @@ python-dotenv
 flask-caching
 coloredlogs
 pyhumps
+apscheduler
