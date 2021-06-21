@@ -137,16 +137,18 @@ async def titleinfo(titleid):
     return await xbl_client.titlehub.get_title_info(titleid)
 
 
-@cr.jsonified_route("/legacysearch/<query>", 86400)
-def search360(query):
-    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
+# legacysearch (EDS) has been removed from xbox-webapi v2
+# Return a 410 (Gone) here?
+#@x.openXboxRoute("/legacysearch/<query>", 86400)
+#async def search360(query):
+#    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
 
 
-@cr.route("/gamertag/check/<gamertag>", 86400)
-def gamertagcheck(gamertag):
-    # See https://github.com/Prouser123/xbox-webapi-python/blob/master/xbox/webapi/api/provider/account.py
-    code = xbl_client.account.claim_gamertag(1, gamertag).status_code
-    return jsonify({"code": code, "available": "true" if code == 200 else "false"})
+@x.router("/gamertag/check/<gamertag>", 86400)
+async def gamertagcheck(gamertag):
+    # Use .value to get the int instead of the enum
+    code = (await xbl_client.account.claim_gamertag(1, gamertag)).value
+    return jsonify({"available": "true" if code == 200 else "false" if code == 409 else "unknown" })
 
 
 # Create hypercorn config object
