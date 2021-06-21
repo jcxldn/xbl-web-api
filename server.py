@@ -2,6 +2,10 @@
 import quart.flask_patch
 from quart import Quart, jsonify, send_from_directory, request
 
+# Hypercorn (Quart ASGI webserver)
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+
 #from flask_cors import CORS
 
 from cache import cache, add_cache_headers, default_secs
@@ -131,8 +135,14 @@ def gamertagcheck(gamertag):
     return jsonify({"code": code, "available": "true" if code == 200 else "false"})
 
 
-
+# Create hypercorn config object
 port = os.getenv("PORT") or 3000
-app.run(host='0.0.0.0', port=port, loop=loop)
-print("BRUH SESSION CLOSING")
-session.close()
+config = Config()
+config.bind = ["0.0.0.0:%i" % port]
+
+# Run hypercorn in the same loop as xbl_client
+loop.run_until_complete(serve(app, config))
+
+# When we get here, hypercorn has finished so we can just close the ClientSession
+print("Serve future done!")
+loop.run_until_complete(session.close())
