@@ -6,6 +6,7 @@ from quart import Response
 from humps import camelize
 import json
 from datetime import datetime
+import functools
 
 class DateTimeJsonEncoder(json.JSONEncoder):
     # 2017-09-20T15:00:00Z
@@ -18,6 +19,10 @@ class DateTimeJsonEncoder(json.JSONEncoder):
 class XblDecorator(QuartDecorator):
 
     def __handleOpenXboxRoute(self, func):
+        # Wrap function so function name is set to func's name
+        # Required as quart needs different "endpoints" (based on func name) for different routes
+        # More info: https://stackoverflow.com/a/42254713
+        @functools.wraps(func)
         def dec(*args, **kwargs):
             # OpenXBOX calls return a model
             model = self.call(func, *args, **kwargs)
