@@ -95,6 +95,9 @@ def get_routes():
     return routes
 
 
+from routes.achievements import Achievements
+app.register_blueprint(Achievements(loop, xbl_client).app, url_prefix="/achievements")
+
 # add routes / blueprints from other files
 #app.register_blueprint(routes.friends.app, url_prefix="/friends")
 #app.register_blueprint(routes.profile.app, url_prefix="/profile")

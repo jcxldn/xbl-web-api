@@ -5,13 +5,17 @@ from providers.QuartDecoratorProvider import QuartDecorator
 from quart import Response
 from humps import camelize
 import json
-from datetime import datetime
+from datetime import datetime, time
 import functools
 
 class DateTimeJsonEncoder(json.JSONEncoder):
     # 2017-09-20T15:00:00Z
     def default(self, obj):
         if isinstance(obj, datetime):
+            return obj.isoformat().replace('+00:00', 'Z')
+        if isinstance(obj, time):
+            # Note: v1 openxbox api responses were 7 digits for microseconds, v2 appears to be 6.
+            # eg. an ISO of "2016-01-30T17:01:33.0204045Z" is now "2016-01-30T17:01:33.020404Z"
             return obj.isoformat().replace('+00:00', 'Z')
         # If not datetime, use super func
         return super(DateTimeJsonEncoder, self).default(obj)
@@ -30,7 +34,7 @@ class XblDecorator(QuartDecorator):
             # Convert the model into a dict, and camelize it (to appear same as pre-v2)
             data = camelize(model.dict())
 
-            print(data)
+            #print(data)
 
             # JSON serialize datetime objects
 
