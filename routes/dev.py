@@ -1,22 +1,19 @@
-from flask import Blueprint, jsonify
+from quart import jsonify
 
-import server
-import main
+from providers.BlueprintProvider import BlueprintProvider
 
-app = Blueprint(__name__.split(".")[1], __name__)
+class Dev(BlueprintProvider):
+    def routes(self):
+        @self.xbl_decorator.router("/reauth")
+        async def reauth():
+            await self.xbl_client._auth_mgr.refresh_tokens()
+            return jsonify({"message": "success"})
 
-
-@app.route("/reauth")
-async def reauth():
-    await server.xbl_client._auth_mgr.refresh_tokens()
-    return jsonify({"message": "success"})
-
-
-@app.route("/isauth")
-def isauth():
-    oauth = server.xbl_client._auth_mgr.oauth.is_valid()
-    user = server.xbl_client._auth_mgr.user_token.is_valid()
-    xsts = server.xbl_client._auth_mgr.xsts_token.is_valid()
-    return jsonify({
-        "authenticated": oauth and user and xsts,
-        })
+        @self.xbl_decorator.router("/isauth")
+        async def isauth():
+            oauth = self.xbl_client._auth_mgr.oauth.is_valid()
+            user = self.xbl_client._auth_mgr.user_token.is_valid()
+            xsts = self.xbl_client._auth_mgr.xsts_token.is_valid()
+            return jsonify({
+                "authenticated": oauth and user and xsts,
+            })

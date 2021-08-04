@@ -2,6 +2,8 @@
 from asyncio.coroutines import iscoroutinefunction
 #from asyncio.futures import isfuture
 
+import functools
+
 class QuartDecorator(object):
     def __init__(self, app, loop):
         print("quartdecorator init")
@@ -9,6 +11,11 @@ class QuartDecorator(object):
         self.loop = loop
     
     def __debug_return(self, func):
+        # Wrap function so function name is set to func's name
+        # Required as quart needs different "endpoints" (based on func name) for different routes
+        # More info: https://stackoverflow.com/a/42254713
+        # Also see: XblDecoratorProvider.py
+        @functools.wraps(func)
         def dec(*args, **kwargs):
             value = self.call(func, *args, **kwargs)
             #value = self.call(func)
