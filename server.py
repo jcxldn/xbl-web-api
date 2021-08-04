@@ -10,9 +10,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 #from flask_cors import CORS
 
-from cache import cache, add_cache_headers, default_secs
-from cached_route import CachedRoute
-
 import asyncio
 import subprocess
 import os
@@ -38,8 +35,6 @@ xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 # Setup & start the scheduler
 scheduler = AsyncIOScheduler(event_loop=loop)
 scheduler.start()
-# Get a CachedRoute instance for routes defined in this file
-cr = CachedRoute(app, loop)
 
 # Init scheduler
 #scheduler = APScheduler()
@@ -47,10 +42,6 @@ cr = CachedRoute(app, loop)
 #scheduler.api_enabled = False
 #scheduler.init_app(app)
 #scheduler.start()
-
-# Init caching
-cache.init_app(app)
-cache.clear()
 
 # Define scheduled tasks
 sched_logger = logging.getLogger("sched.timed_reauth")
@@ -120,8 +111,8 @@ def readme():
 
 
 # Note: 1 day cache (86400s) on following routes
-@cr.route("/info", 86400)
-#@app.route("/info")
+#@cr.route("/info", 86400)
+@app.route("/info")
 #@cache.cached(300)
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
