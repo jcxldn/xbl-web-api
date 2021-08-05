@@ -29,19 +29,11 @@ loop = asyncio.get_event_loop()
 print("USING LOOP")
 print(loop)
 app = Quart(__name__, static_folder=None)
-# auth me uwu
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
 # Setup & start the scheduler
 scheduler = AsyncIOScheduler(event_loop=loop)
 scheduler.start()
-
-# Init scheduler
-#scheduler = APScheduler()
-# Set options
-#scheduler.api_enabled = False
-#scheduler.init_app(app)
-#scheduler.start()
 
 # Define scheduled tasks
 sched_logger = logging.getLogger("sched.timed_reauth")
@@ -55,14 +47,6 @@ async def job_timed_reauth():
     else:
         sched_logger.error("Not in the same event loop!")
         raise RuntimeError("Timed Reauth not in same loop!")
-
-#
-#@scheduler.task('interval', id='hello_60s', seconds=60)
-#def hello60():
-#    print("Hello 60s!")
-#
-# Setup CORS
-#CORS(app)
 
 # Setup after_request to add caching headers
 
