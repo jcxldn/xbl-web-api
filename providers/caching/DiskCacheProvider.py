@@ -12,6 +12,9 @@ class DiskCacheProvider(CacheProvider):
     
     def set(self, key, value, expire):
         return self.cache.set(key, value, expire)
+    
+    def has(self, key):
+        return self.cache.__contains__(key)
 
     def len(self):
         return self.cache.__len__()

@@ -16,5 +16,9 @@ class CacheProvider(ABC):
         raise NotImplementedError("Implemented in subclass!")
     
     @abstractmethod
+    def has(self, key):
+        raise NotImplementedError("Implemented in subclass")
+
+    @abstractmethod
     def shutdown(self):
         raise NotImplementedError("Implemented in subclass!")
