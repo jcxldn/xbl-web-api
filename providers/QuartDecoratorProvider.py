@@ -1,4 +1,4 @@
-#from inspect import isawaitable
+from inspect import isfunction
 from asyncio.coroutines import iscoroutinefunction
 #from asyncio.futures import isfuture
 
@@ -37,10 +37,17 @@ class QuartDecorator(object):
         if iscoroutinefunction(func):
             print("call | coroutine_function")
             return self.call_async_wait(func, *args, **kwargs)
+        # OpenXbox routes are wrapped in a synchronous handle function
+        # Which itself calles this call function
+        # So, if we get a normal function, just run it!
+        elif isfunction(func):
+            print("call | function")
+            return func(*args, **kwargs)
+        else:
             raise TypeError("Unsupported input func: '%s'" % func)
         
     
-    def __cache_response(self, func):
+    def __cache_response(self, func, timeout):
         """
         Internal function to run a route and cache the resulting Response object.
         """
@@ -66,7 +73,8 @@ class QuartDecorator(object):
             print(cache_key == self.__make_cache_key(request))
 
             # Now that we've created the key, we can add it to the cache.
-            self.cache.set(cache_key, value, 3600)
+            print("FOUND TIMEOUT: " + str(timeout))
+            self.cache.set(cache_key, value, timeout)
             # Lastly, let's return the response so we can complete the request.
             return value
         return dec
@@ -91,7 +99,7 @@ class QuartDecorator(object):
             print("Skipping cache headers (not type Response)")
         return res
     
-    def __cachedRoute(self, func):
+    def __cachedRoute(self, func, timeout):
         """
         Cached Route handler, runs just before app.route.
 
@@ -112,7 +120,7 @@ class QuartDecorator(object):
             else:
                 # Result not cached, let's call the function
                 print("NO CACHE, CALLING FUNC")
-                return self.__cache_response(func)(*args, **kwargs)
+                return self.__cache_response(func, timeout)(*args, **kwargs)
         return dec
     
     def __make_cache_key(self, request):
@@ -144,5 +152,5 @@ class QuartDecorator(object):
     
     def cachedRoute(self, path, timeout=300):
         def dec(func):
-            return self.app.route(path)(self.__cachedRoute(func))
+            return self.app.route(path)(self.__cachedRoute(func, timeout))
         return dec

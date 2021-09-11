@@ -41,10 +41,13 @@ class XblDecorator(QuartDecorator):
             data_json = json.dumps(data, cls=DateTimeJsonEncoder, separators=(',', ':'))
             
             res = Response(response=data_json, mimetype="application/json")
+
+            print("handleOpenXboxRoute: returning: " + str(res))
             return res
         return dec
 
     def openXboxRoute(self, path, timeout=300):
         def dec(func):
-            return self.app.route(path)(self.__handleOpenXboxRoute(func))
+        #    return self.app.route(path)(self.__handleOpenXboxRoute(func))
+            return self.cachedRoute(path, timeout)(self.__handleOpenXboxRoute(func))
         return dec

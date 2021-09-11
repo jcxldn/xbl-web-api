@@ -109,13 +109,12 @@ def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
 
-from providers.QuartDecoratorProvider import QuartDecorator
 from providers.XblDecoratorProvider import XblDecorator
 
-q = QuartDecorator(app, loop, cache)
-x = XblDecorator(app, loop, None)
+# Init XblDecorator (inherits from QuartDecorator)
+router = XblDecorator(app, loop, cache)
 
-@x.openXboxRoute("/titleinfo/<int:titleid>", 86400)
+@router.openXboxRoute("/titleinfo/<int:titleid>", 86400)
 #@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 async def titleinfo(titleid):
     print("IN TITLEINFO")
@@ -129,7 +128,7 @@ async def titleinfo(titleid):
 #    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
 
 
-@x.router("/gamertag/check/<gamertag>", 86400)
+@router.cachedRoute("/gamertag/check/<gamertag>", 86400)
 async def gamertagcheck(gamertag):
     # Use .value to get the int instead of the enum
     code = (await xbl_client.account.claim_gamertag(1, gamertag)).value
