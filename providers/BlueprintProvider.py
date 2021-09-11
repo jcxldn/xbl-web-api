@@ -15,7 +15,7 @@ class BlueprintProvider(ABC):
         self.loop = loop
         self.xbl_client = xbl_client
 
-        self.xbl_decorator = XblDecorator(self.app, self.loop)
+        self.xbl_decorator = XblDecorator(self.app, self.loop, None)
 
         # Shortcut to access openXboxRoute
         self.openXboxRoute = self.xbl_decorator.openXboxRoute

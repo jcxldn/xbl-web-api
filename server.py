@@ -31,6 +31,10 @@ print(loop)
 app = Quart(__name__, static_folder=None)
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
+# Get a cacheprovider
+from providers.caching.DiskCacheProvider import DiskCacheProvider
+cache = DiskCacheProvider("/tmp/xbl-web-api")
+
 # Setup & start the scheduler
 scheduler = AsyncIOScheduler(event_loop=loop)
 scheduler.start()
@@ -108,8 +112,8 @@ def info():
 from providers.QuartDecoratorProvider import QuartDecorator
 from providers.XblDecoratorProvider import XblDecorator
 
-q = QuartDecorator(app, loop)
-x = XblDecorator(app, loop)
+q = QuartDecorator(app, loop, cache)
+x = XblDecorator(app, loop, None)
 
 @x.openXboxRoute("/titleinfo/<int:titleid>", 86400)
 #@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
