@@ -93,6 +93,9 @@ app.register_blueprint(Achievements(loop, xbl_client, cache).app, url_prefix="/a
 from routes.dev import Dev
 app.register_blueprint(Dev(loop, xbl_client, cache).app, url_prefix="/dev")
 
+from routes.friends import Friends
+app.register_blueprint(Friends(loop, xbl_client, cache).app, url_prefix="/friends")
+
 # add routes / blueprints from other files
 #app.register_blueprint(routes.friends.app, url_prefix="/friends")
 #app.register_blueprint(routes.profile.app, url_prefix="/profile")
