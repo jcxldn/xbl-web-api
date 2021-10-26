@@ -29,7 +29,7 @@ class Achievements(BlueprintProvider):
         @self.openXboxRoute("/1/titleprogress/<int:xuid>/<int:titleid>")
         async def titleprogress1(xuid, titleid):
             continuationToken = tryParseInt(request.args.get("continuationToken"), 0)
-            print("Found continuationToken: '%s'" % str(continuationToken))
+            self.logger.debug("Found continuationToken: '%s'" % str(continuationToken))
 
             return await self.xbl_client.achievements.get_achievements_xboxone_gameprogress(xuid, titleid, extra_params = {"continuationToken": continuationToken })
 
