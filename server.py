@@ -8,6 +8,8 @@ from hypercorn.asyncio import serve
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from providers import LoggingProvider
+
 #from flask_cors import CORS
 
 import asyncio
@@ -25,9 +27,10 @@ import main
 #import routes.achievements
 #import routes.dev
 
+logger = LoggingProvider.getLogger("server")
+
 loop = asyncio.get_event_loop()
-print("USING LOOP")
-print(loop)
+logger.info("Using loop: %s" % str(loop))
 app = Quart(__name__, static_folder=None)
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
@@ -117,7 +120,6 @@ router = XblDecorator(app, loop, cache)
 @router.openXboxRoute("/titleinfo/<int:titleid>", 86400)
 #@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
 async def titleinfo(titleid):
-    print("IN TITLEINFO")
     return await xbl_client.titlehub.get_title_info(titleid)
 
 
@@ -144,5 +146,5 @@ config.bind = ["0.0.0.0:%i" % port]
 loop.run_until_complete(serve(app, config))
 
 # When we get here, hypercorn has finished so we can just close the ClientSession
-print("Serve future done!")
+logger.info("Serve future done! Closing session...")
 loop.run_until_complete(session.close())

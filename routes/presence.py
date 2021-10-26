@@ -15,7 +15,6 @@ def getSinglePresence(xuid):
 
 @cr.jsonified_route("/xuid/<int:xuid>")
 def xuid(xuid):
-    print("uwu")
     return getSinglePresence(xuid)
 
 

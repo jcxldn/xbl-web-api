@@ -42,7 +42,7 @@ class XblDecorator(QuartDecorator):
             
             res = Response(response=data_json, mimetype="application/json")
 
-            print("handleOpenXboxRoute: returning: " + str(res))
+            self.logger.debug("handleOpenXboxRoute: returning: " + str(res))
             return res
         return dec
 

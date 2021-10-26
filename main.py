@@ -14,6 +14,10 @@ from xbox.webapi.authentication.manager import AuthenticationManager
 from xbox.webapi.authentication.models import OAuth2TokenResponse
 from xbox.webapi.common.exceptions import AuthenticationException
 
+from providers import LoggingProvider
+
+logger = LoggingProvider.getLogger("server.main")
+
 #import server
 
 # Load environment variables (user/pass) from .env
@@ -42,27 +46,27 @@ async def authenticate(loop):
             tokens = f.read()
         auth_mgr.oauth = OAuth2TokenResponse.parse_raw(tokens)
     except FileNotFoundError:
-        print("Err loading tokens!")
+        logger.error("Err loading tokens!")
         sys.exit(-1)
         
     # Attempt to refresh tokens if required
     try:
         await auth_mgr.refresh_tokens()
     except ClientResponseError:
-        print("Could not refresh tokens!")
+        logger.error("Could not refresh tokens!")
         sys.exit(-1)
         
     # Save the refreshed tokens to disk
     with open(tokens_file_path, mode="w") as f:
         f.write(auth_mgr.oauth.json())
-        print("Saved refreshed tokens to disk!")
+        logger.info("Saved refreshed tokens to disk!")
         
     # Init the XboxLiveClient
     xbl_client = XboxLiveClient(auth_mgr)
 
     xbl_client._xbl_web_api_lastauth = time.time()
 
-    print("Logged in as '%s' (%s) " % (
+    logger.info("Logged in as '%s' (%s) " % (
         xbl_client._auth_mgr.xsts_token.gamertag,
         xbl_client._auth_mgr.xsts_token.xuid
     ))
