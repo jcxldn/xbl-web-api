@@ -55,6 +55,16 @@ async def job_timed_reauth():
         sched_logger.error("Not in the same event loop!")
         raise RuntimeError("Timed Reauth not in same loop!")
 
+@scheduler.scheduled_job('interval', minutes=5)
+async def job_cache_cleanup():
+    # This job will remove expired items from the cache
+    number_removed = cache.remove_expired()
+
+    # Get a logger and print details on how much we cleared
+    logger = logging.getLogger("sched.cache_cleanup")
+    logger.info("Removed %i expired items from cache." % number_removed)
+    logger.info("New cache size is %i items." % cache.len())
+
 # Setup after_request to add caching headers
 
 def get_client(main_xbl_client):
