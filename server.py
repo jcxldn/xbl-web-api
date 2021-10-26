@@ -75,10 +75,10 @@ def get_routes():
 
 
 from routes.achievements import Achievements
-app.register_blueprint(Achievements(loop, xbl_client).app, url_prefix="/achievements")
+app.register_blueprint(Achievements(loop, xbl_client, cache).app, url_prefix="/achievements")
 
 from routes.dev import Dev
-app.register_blueprint(Dev(loop, xbl_client).app, url_prefix="/dev")
+app.register_blueprint(Dev(loop, xbl_client, cache).app, url_prefix="/dev")
 
 # add routes / blueprints from other files
 #app.register_blueprint(routes.friends.app, url_prefix="/friends")
