@@ -9,12 +9,16 @@ import time
 
 from quart import Response, request
 
+from providers import LoggingProvider
+
 class QuartDecorator(object):
     def __init__(self, app, loop, cache):
-        print("quartdecorator init")
         self.app = app
         self.loop = loop
         self.cache = cache
+        self.logger = LoggingProvider.getLogger(__name__)
+        # Log to debug console about decorator init
+        self.logger.debug("QuartDecorator init...")
     
     def __debug_return(self, func):
         # Wrap function so function name is set to func's name
@@ -34,14 +38,17 @@ class QuartDecorator(object):
     
     # is$X functions from asyncio tasks.py
     def call(self, func, *args, **kwargs):
+        # Get a child logger with this function name as the suffix
+        logger = self.logger.getChild("call")
+
         if iscoroutinefunction(func):
-            print("call | coroutine_function")
+            logger.debug("Found coroutine function!")
             return self.call_async_wait(func, *args, **kwargs)
         # OpenXbox routes are wrapped in a synchronous handle function
         # Which itself calles this call function
         # So, if we get a normal function, just run it!
         elif isfunction(func):
-            print("call | function")
+            logger.debug("Found (normal) function!")
             return func(*args, **kwargs)
         else:
             raise TypeError("Unsupported input func: '%s'" % func)
@@ -51,6 +58,10 @@ class QuartDecorator(object):
         """
         Internal function to run a route and cache the resulting Response object.
         """
+
+        # Get a child logger with this function name as the suffix
+        logger = self.logger.getChild("__cache_response")
+
         @functools.wraps(func)
         def dec(*args, **kwargs):
             # Use debug return as calling mechanism (as in router) until we remove it later in the dev stage
@@ -59,22 +70,23 @@ class QuartDecorator(object):
             # Next, let's add an X-Queried-At header so we client can easily tell when they recieve a cached result
             value = self.__add_cache_headers(value)
 
-            print("__cache_response")
-            print("Is value of type response? %r" % isinstance(value, Response))
-            print(value)
-            print("has request?")
-            print(request.path)
-            print("-----")
-            print("Hashing path...")
+            logger.debug("Is value of type response? '%r'", isinstance(value, Response))
+            logger.debug("Value Type: '%s'", str(value))
+            logger.debug("Has request? '%s'", request.path)
+
+            # Now, let's create the cache key by hashing the path.
             cache_key = self.__make_cache_key(request)
-            print(cache_key)
-            print("Sanity check: Checking that 2nd run returns same value...")
-            print("Value matches?")
-            print(cache_key == self.__make_cache_key(request))
+            # And log the result!
+            logger.info("Created cache key '%s'", cache_key)
+
+            # DEV: Sanity check to make sure 2nd cache key returns the same value
+            logger.info("Sanity check passed? %r", cache_key == self.__make_cache_key(request))
+
+            logger.info("Found timeout of %ss", str(timeout))
 
             # Now that we've created the key, we can add it to the cache.
-            print("FOUND TIMEOUT: " + str(timeout))
             self.cache.set(cache_key, value, timeout)
+
             # Lastly, let's return the response so we can complete the request.
             return value
         return dec
@@ -83,8 +95,13 @@ class QuartDecorator(object):
         """
         Helper function to add an X-Queried-At header to a response
         """
+
+        # Get a child logger with this function name as the suffix
+        logger = self.logger.getChild("__add_cache_headers")
+
         if isinstance(res, Response):
-            print("Adding cache headers...")
+
+            logger.debug("Adding cache headers...")
             # ----------
             # Create a X-Queried-At header
             # ----------
@@ -96,7 +113,7 @@ class QuartDecorator(object):
             epoch_b64 = base64.b64encode(epoch_str_bytes)
             res.headers["X-Queried-At"] = epoch_b64
         else:
-            print("Skipping cache headers (not type Response)")
+            logger.warn("Skipping cache headers (not type Response)")
         return res
     
     def __cachedRoute(self, func, timeout):
@@ -107,19 +124,23 @@ class QuartDecorator(object):
         If it's available, we will return the cached result.
         Otherwise, we'll run the function and __cache_response will cache it.
         """
+
+        # Get a child logger with this function name as the suffix
+        logger = self.logger.getChild("__cachedRoute")
+
         @functools.wraps(func)
         def dec(*args, **kwargs):
-            print("\n\n\nCACHED ROUTE INIT")
+            logger.debug("dec() called, cached route init")
             cache_key = self.__make_cache_key(request)
 
             # Check if the cache key already exists
             if (self.cache.has(cache_key)):
                 # This request is already cached! Let's fetch and return it.
-                print("FOUND CACHED RESULT RETURNING")
+                logger.debug("Found cached result! Returning...")
                 return self.cache.get(cache_key)
             else:
                 # Result not cached, let's call the function
-                print("NO CACHE, CALLING FUNC")
+                logger.debug("No cache! Calling function...")
                 return self.__cache_response(func, timeout)(*args, **kwargs)
         return dec
     
@@ -139,11 +160,6 @@ class QuartDecorator(object):
 
         # 5. Return the digest (result) of the hash function
         return hash.hexdigest()
-
-
-
-            
-
     
     def router(self, path, timeout=300):
         def dec(func):
