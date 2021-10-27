@@ -96,6 +96,12 @@ app.register_blueprint(Dev(loop, xbl_client, cache).app, url_prefix="/dev")
 from routes.friends import Friends
 app.register_blueprint(Friends(loop, xbl_client, cache).app, url_prefix="/friends")
 
+from routes.presence import Presence
+app.register_blueprint(Presence(loop, xbl_client, cache).app, url_prefix="/presence")
+
+from routes.xuid import Xuid
+app.register_blueprint(Xuid(loop, xbl_client, cache).app, url_prefix="/xuid")
+
 # add routes / blueprints from other files
 #app.register_blueprint(routes.friends.app, url_prefix="/friends")
 #app.register_blueprint(routes.profile.app, url_prefix="/profile")
@@ -154,6 +160,10 @@ async def gamertagcheck(gamertag):
 port = os.getenv("PORT") or 3000
 config = Config()
 config.bind = ["0.0.0.0:%i" % port]
+
+# Save the port so we can access it later
+# Making loopback requests is a *bad* idea but we do get cached results this way!
+xbl_client._xbl_web_api_current_port = port
 
 # Run hypercorn in the same loop as xbl_client
 loop.run_until_complete(serve(app, config))

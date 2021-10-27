@@ -31,6 +31,13 @@ class XblDecorator(QuartDecorator):
             # OpenXBOX calls return a model
             model = self.call(func, *args, **kwargs)
 
+            # If an @openxboxroute returns a response (eg. presence gamertag returns 
+            # a response with a 404 if it can't resolve the gamertag to an xuid)
+            if type(model) is Response:
+                # Skip all the openxbox -> formatted response as it would error out
+                # and just return the response
+                return model
+
             # Convert the model into a dict, and camelize it (to appear same as pre-v2)
             data = camelize(model.dict())
 
