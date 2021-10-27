@@ -1,50 +1,56 @@
-from flask import Blueprint, jsonify
+from aiohttp import ClientResponse
+from quart import jsonify
 
-import server
-import routes.xuid
+from providers.BlueprintProvider import BlueprintProvider
+from providers.LoopbackRequestProvider import LoopbackRequestProvider
 
-from cached_route import CachedRoute
+class Profile(BlueprintProvider, LoopbackRequestProvider):
+    def routes(self):
+        # ---------- Profile Settings Routes (these don't have as much info) ----------
+        @self.openXboxRoute("/settings/gamertag/<gamertag>")
+        async def settings_gamertag(gamertag):
+            return await self.xbl_client.profile.get_profile_by_gamertag(gamertag)
+        
+        @self.openXboxRoute("/settings/xuid/<int:xuid>")
+        async def settings_xuid(xuid):
+            return await self.xbl_client.profile.get_profile_by_xuid(xuid)
 
-app = Blueprint(__name__.split(".")[1], __name__)
-cr = CachedRoute(app)
-
-
-# Profile Settings Routes (these don't have as much info)
-
-
-@cr.jsonified_route("/settings/gamertag/<gamertag>")
-def settings_gamertag(gamertag):
-    return server.xbl_client.profile.get_profile_by_gamertag(gamertag).content
-
-
-@cr.jsonified_route("/settings/xuid/<int:xuid>")
-def settings_xuid(xuid):
-    return server.xbl_client.profile.get_profile_by_xuid(xuid).content
-
-
-# Profile Routes
-
-@cr.jsonified_route("/xuid/<int:xuid>")
-def xuid(xuid):
-    # Check if the XUID is valid, and if not, return an error
-    if (not routes.xuid.isXUID(xuid)):
-        return jsonify({"error": 400, "message": "invalid xuid"}), 400
-    # if the xuid is valid, make the API request
-    req = server.xbl_client.profile.get_profiles([xuid])
-    # Client returns code 400 instead of 404
-    if (req.status_code == 400):
-        return jsonify({"error": 404, "message": "user not found"}), 404
-    # return the usual response if there were no issues
-    return req.content
+        # ---------- Profile Routes ----------
+        @self.openXboxRoute("/xuid/<int:xuid>")
+        async def xuid(xuid):
+            # TODO: skipping XUID validation for now, will do for all routes afterwards
+            # Assume xuid is valid
+            return await self.xbl_client.profile.get_profiles([xuid])
 
 
-# Not using jsonified_route as xuid is already using it
-@cr.route("/gamertag/<gamertag>")
-def gamertag(gamertag):
-    # make the request
-    req = routes.xuid.gamertag_to_xuid_raw(gamertag)
-    # if an error was recieved (it will return an object), return the error
-    if (not routes.xuid.isInt(req)):
-        return req
-    # if there were no errors, return the usual response
-    return xuid(req)
+        @self.openXboxRoute("/gamertag/<gamertag>")
+        async def gamertag(gamertag):
+            # 1. Convert gamertag to XUID
+            # Making local http requests so we can grab cached data,
+            # minimizing the amountt of calls made to Xbox Live.
+            # See xuid.py#L34
+
+            async def on_finish(res: ClientResponse):
+            # We know the type already, just check the status code
+                if (res.status == 200):
+                    xuid = str((await res.json())["xuid"])
+                    print("Got XUID: %s" % xuid)
+                    # 2. Lookup profile via xuid (using local http requests to take advantage of cached data)
+
+                    # Now we're gonna do this again but for /profile/xuid
+                    # The callback will return a response so we can just return the output once awaited
+                    async def on_profile_lookup_finish(profileRes: ClientResponse):
+                        return jsonify(await profileRes.json())
+                    
+                    # Get profile via xuid, using above function as a callback
+                    # As below, the callback will return a response so we can just return the output once awaited
+                    return await self.get("http://localhost:%i/profile/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, xuid), on_profile_lookup_finish)
+                else:
+                    # Passthough response content (handled in above route)
+                    response = jsonify(await res.json())
+                    response.status_code = 404
+                    return response
+            
+            # Make a async request to our own xuid endpoint, awaiting on_finish as a callback
+            # on_finish will return our crafted response, so we can return the output once awaited
+            return await self.get("http://localhost:%i/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, gamertag), on_finish)

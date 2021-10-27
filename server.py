@@ -99,6 +99,9 @@ app.register_blueprint(Friends(loop, xbl_client, cache).app, url_prefix="/friend
 from routes.presence import Presence
 app.register_blueprint(Presence(loop, xbl_client, cache).app, url_prefix="/presence")
 
+from routes.profile import Profile
+app.register_blueprint(Profile(loop, xbl_client, cache).app, url_prefix="/profile")
+
 from routes.xuid import Xuid
 app.register_blueprint(Xuid(loop, xbl_client, cache).app, url_prefix="/xuid")
 
