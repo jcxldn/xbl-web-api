@@ -1,5 +1,7 @@
 from aiohttp import ClientResponse
-from quart import Response, render_template
+from quart import Response, render_template, jsonify
+
+import json
 
 from providers.BlueprintProvider import BlueprintProvider
 from providers.LoopbackRequestProvider import LoopbackRequestProvider
@@ -65,13 +67,54 @@ class Usercolors(BlueprintProvider, LoopbackRequestProvider):
             # on_finish will return our crafted response, so we can return the output once awaited
             return await self.get("http://localhost:%i/profile/settings/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, xuid), on_finish)
 
+        @self.xbl_decorator.cachedRoute("/get/gamertag/<gamertag>")
+        async def getGamertag(gamertag):
+            # 1. Convert gamertag to XUID
+            # NOTE: We could just call profileSettings via gamertag
+            # but if we convert to XUID we can use cached results from /usercolors/get/xuid
+            # ----------
+            # Making local http requests so we can grab cached data,
+            # minimizing the amount of calls made to Xbox Live.
+            # See xuid.py#L34
+            async def on_xuid_lookup_finish(res: ClientResponse):
+                # 1. Check status code
+                if (res.status == 200):
+                    # Assumme we got the data
+                    # Get the body
+                    body = await res.text()
+                    # Parse as JSON
+                    data = json.loads(body)
+                    # Get the xuid string from the json object
+                    xuid = data["xuid"]
 
-#@cr.route("/get/gamertag/<gamertag>", 86400)
-#def getGamertag(gamertag):
-#    # make the request
-#    req = routes.xuid.gamertag_to_xuid_raw(gamertag)
-#    # if an error was recieved (it will return an object), return the error
-#    if (not routes.xuid.isInt(req)):
-#        return req
-#    # if there were no errors, return the usual response
-#    return getXuid(req)
+                    # 2. Call getXuid (defined above) with our xuid
+                    #    We are doing this instead of re-implementing with gamertag input
+                    #    So we can make better use of the cache (eg. if user was looked up with gamertag and xuid)
+                    async def on_colors_request_finish(svgReq: ClientResponse):
+                        if (svgReq.status == 200):
+                            # Copy useful headers from the response
+                            headers =  {
+                                "x-upstream-queried-at": svgReq.headers.get("x-queried-at"),
+                                "x-xbl-web-api-colors-source": svgReq.headers.get("x-xbl-web-api-colors-source")
+                            }
+                            # We got the response we were expecting! We can just return it.
+                            return Response(await svgReq.text(), headers=headers, mimetype=svgReq.content_type)
+                        else:
+                            # MAKE THIS
+                            response = jsonify({"error": "error getting user colors", "code": svgReq.status})
+                            response.status_code = 404
+                            return response
+
+                    # Make a async request to our own usercolors/xuid endpoint, using the above callback
+                    # Return whatever was returned by the callback
+                    return await self.get("http://localhost:%i/usercolors/get/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, xuid), on_colors_request_finish)
+                     
+                # on_xuid_lookup_finish -> if status code is NOT 200
+                else:
+                    response = jsonify({"error": "could not resolve gamertag", "code": res.status})
+                    response.status_code = 404
+                    return response 
+
+            # Make a async request to our own xuid endpoint, using on_xuid_lookup_finish as a callback
+            # Return whatever was returned (eg. a Response object)
+            return await self.get("http://localhost:%i/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, gamertag), on_xuid_lookup_finish)
