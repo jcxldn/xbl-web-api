@@ -22,7 +22,7 @@ jobs:
           pip install coverage codecov -r requirements.txt -r requirements-tests.txt
       -
         name: Get tokens
-        run: mkdir env && echo '$XBL_TOKENE' | base64 --decode > env/tokens.json
+        run: mkdir env && echo $XBL_TOKENE | base64 --decode > env/tokens.json
         env:
           XBL_TOKENE: ${{ secrets.XBL_TOKENE }}
       -
