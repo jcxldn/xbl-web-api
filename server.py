@@ -90,8 +90,11 @@ def index():
 
 
 @app.route("/readme")
-def readme():
-    return send_from_directory("./", "README.md")
+async def readme():
+    res = await send_from_directory("./", "README.md")
+    # Windows sets the wrong mimetype
+    res.mimetype = "text/markdown"
+    return res
 
 @app.route("/info")
 def info():

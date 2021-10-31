@@ -67,7 +67,7 @@ async def test_index():
 async def test_readme():
     async with session.get("http://localhost:3000/readme") as res:
         assert res.status == 200
-        assert res.content_type == "application/octet-stream" # worth changing? currently opens a save as prompt if accessed
+        assert res.content_type == "text/markdown"
         assert str(await res.text()).replace("\r", "") == open("README.md", mode="r").read()
 
 @pytest.mark.asyncio
