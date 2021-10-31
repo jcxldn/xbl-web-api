@@ -41,8 +41,11 @@ def setup():
 
     print("Tests finished! Sending SIGINT/CTRL+C")
 
-    # windows
-    p.send_signal(signal.CTRL_C_EVENT)
+    if os.name == 'nt':
+        # Windows does not support sigint
+        p.send_signal(signal.CTRL_C_EVENT)
+    else:
+        p.send_signal(signal.SIGINT)
 
     p.wait() # Wait for subprocess to gracefully exit
     print("DONE!")
