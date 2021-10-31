@@ -1,7 +1,9 @@
-flask
-xbox-webapi-ex==1.1.9
+Quart
+Quart-CORS
+xbox-webapi==2.0.11
 python-dotenv
-flask-cors
-Flask-APScheduler
-flask-caching
 coloredlogs
+pyhumps
+apscheduler
+diskcache
+aiohttp

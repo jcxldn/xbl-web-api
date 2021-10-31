@@ -1,27 +1,16 @@
-from flask import Blueprint, jsonify
-import json
+from quart import jsonify
 
-import server
+from providers.BlueprintProvider import BlueprintProvider
 
-from cached_route import CachedRoute
+class Friends(BlueprintProvider):
+    def __craftSummary(self, data):
+            return jsonify({"following": data.target_following_count, "followers": data.target_follower_count})
 
-app = Blueprint(__name__.split(".")[1], __name__)
-cr = CachedRoute(app)
+    def routes(self):
+        @self.xbl_decorator.cachedRoute("/summary/xuid/<int:xuid>")
+        async def xuid(xuid):
+            return self.__craftSummary(await self.xbl_client.people.get_friends_summary_by_xuid(xuid))
 
-
-def craftSummary(data):
-    return json.dumps({"following": data["targetFollowingCount"], "followers": data["targetFollowerCount"]})
-
-
-@cr.jsonified_route("/summary/xuid/<int:xuid>")
-def xuid(xuid):
-    data = json.loads(
-        server.xbl_client.people.get_friends_summary_by_xuid(xuid).content)
-    return craftSummary(data)
-
-
-@cr.jsonified_route("/summary/gamertag/<gamertag>")
-def gamertag(gamertag):
-    data = json.loads(
-        server.xbl_client.people.get_friends_summary_by_gamertag(gamertag).content)
-    return craftSummary(data)
+        @self.xbl_decorator.cachedRoute("/summary/gamertag/<gamertag>")
+        async def gamertag(gamertag):
+            return self.__craftSummary(await self.xbl_client.people.get_friends_summary_by_gamertag(gamertag))

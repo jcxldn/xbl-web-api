@@ -1,47 +1,58 @@
-from flask import Blueprint, jsonify
+from aiohttp import ClientResponseError, ClientResponse
+from quart import jsonify
 
 import json
 
-import server
+from providers.BlueprintProvider import BlueprintProvider
+from providers.LoopbackRequestProvider import LoopbackRequestProvider
 
-from cached_route import CachedRoute
-
-app = Blueprint(__name__.split(".")[1], __name__)
-cr = CachedRoute(app)
-
-
-def isInt(value):
-    try:
-        value = int(value)
-        return True
-    except (ValueError, TypeError):
-        # pass  # it was a string, not an int.
-        return False
-
-
+# Putting this function outside of the class so that profile.py can access it easily
+# TODO: This is not used internally, move to profile.py
 def isXUID(xuid):
-    return True if len(str(xuid)) == 16 else False
+        return True if len(str(xuid)) == 16 else False
 
+class Xuid(BlueprintProvider, LoopbackRequestProvider):    
+    def routes(self):
+        @self.xbl_decorator.cachedRoute("/<gamertag>")
+        async def gamertag_to_xuid(gamertag):
+            try:
+                profile_response = await self.xbl_client.profile.get_profile_by_gamertag(gamertag)
+                # Return "Gamertag" settings[0] instead of "ModernGamertag" settings[1]
+                return jsonify({"gamertag": profile_response.profile_users[0].settings[0].value, "xuid": profile_response.profile_users[0].id})
 
-# TODO: Does not work correctly when called in other routes while using @cr.route - flask-caching related?
-@app.route("/<gamertag>/raw")
-def gamertag_to_xuid_raw(gamertag):
-    # make the request
-    req = server.xbl_client.profile.get_profile_by_gamertag(gamertag)
-    # if there were any errors, return the error code
-    if (req.status_code != 200):
-        message = "user not found" if req.status_code == 404 else ""
-        return jsonify({"error": req.status_code, "message": message, "gamertag": gamertag}), req.status_code
-    # if there were no errors, return the bit of the response we want
-    return json.loads(req.content)["profileUsers"][0]["id"]
+            # Likely a 404
+            except ClientResponseError as err:
+                response = jsonify({"error": "could not resolve gamertag", "code": err.code})
+                # If we don't get a 404 (eg a 429 too many requests), change the response body
+                if (err.code != 404): response = jsonify({"error": "error contacting service", "code": err.code})
+                response.status_code = 404
+                return response
+        
+        
+        @self.xbl_decorator.cachedRoute("/<gamertag>/raw")
+        async def gamertag_to_xuid_raw(gamertag):
+            # Here we *could* just call the other function directly
+            # While it would be cached, the path would not update
+            # So we end up with two cache items for the same path (not good!)
+            # This is a problem as one of them has the wrong output (/gamertag call could return /gamertag/raw result!)
+            # So instead, we're gonna do what we do in presence.py and make a loopback request
+            # To be clear, making a http request to yourself *is not* a good idea
+            # ... but at least this way caching works properly :upside_down_face:
 
-
-@cr.route("/<gamertag>")
-def gamertag_to_xuid(gamertag):
-    # make the request
-    req = gamertag_to_xuid_raw(gamertag)
-    # if an error was recieved, return the error
-    if (not isInt(req)):
-        return req
-    # if there were no errors, return the usual response
-    return jsonify({"gamertag": gamertag, "xuid": gamertag_to_xuid_raw(gamertag)})
+            async def on_finish(res: ClientResponse):
+                # 1. Check status code
+                if (res.status == 200):
+                    # 200! Assume we got the data
+                    text = await res.text()
+                    data = json.loads(text)
+                    # Return the raw string
+                    return data["xuid"]
+                else:
+                    # Passthough response content (handled in above route)
+                    output = jsonify(await res.json())
+                    # Set a 404 (actual response code is res.content.code)
+                    output.status_code = 404
+                    # Return the response object
+                    return output
+            
+            return await self.get("http://localhost:%i/xuid/%s" % (self.xbl_client._xbl_web_api_current_port, gamertag), on_finish)

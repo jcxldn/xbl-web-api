@@ -1,29 +1,19 @@
-from flask import Blueprint, jsonify
+from quart import jsonify
 
-import server
-import main
+from providers.BlueprintProvider import BlueprintProvider
 
-app = Blueprint(__name__.split(".")[1], __name__)
+class Dev(BlueprintProvider):
+    def routes(self):
+        @self.xbl_decorator.router("/reauth")
+        async def reauth():
+            await self.xbl_client._auth_mgr.refresh_tokens()
+            return jsonify({"message": "success"})
 
-
-@app.route("/reauth")
-def reauth():
-    main.authenticate()
-    return jsonify({"message": "success"})
-
-
-@app.route("/isauth")
-def isauth():
-    return jsonify({
-        "authenticated": main.auth_mgr.authenticated,
-        "gt": main.auth_mgr.userinfo.gamertag,
-        "access": {
-            "issued": main.auth_mgr.access_token.date_issued,
-            "expires": main.auth_mgr.access_token.date_valid,
-            "valid": main.auth_mgr.access_token.is_valid
-        },
-        "user": {
-            "issued": main.auth_mgr.user_token.date_issued,
-            "expires": main.auth_mgr.user_token.date_valid,
-            "valid": main.auth_mgr.user_token.is_valid
-        }})
+        @self.xbl_decorator.router("/isauth")
+        async def isauth():
+            oauth = self.xbl_client._auth_mgr.oauth.is_valid()
+            user = self.xbl_client._auth_mgr.user_token.is_valid()
+            xsts = self.xbl_client._auth_mgr.xsts_token.is_valid()
+            return jsonify({
+                "authenticated": oauth and user and xsts,
+            })
