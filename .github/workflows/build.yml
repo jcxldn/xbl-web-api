@@ -24,8 +24,9 @@ jobs:
         name: Run tests
         run: XBLAPI_RUN_COVERAGE=1 pytest -s
         env:
-          XBL_EMAIL: ${{ secrets.XBL_EMAIL }}
-          XBL_PASS: ${{ secrets.XBL_PASS }}
+          XBL_CID: ${{ secrets.XBL_CID }}
+          XBL_CSEC: ${{ secrets.XBL_CSEC }}
+          XBL_TOKENS_PATH: ${{ secrets.XBL_TOKENS_PATH }}
       -
         name: Report coverage
         run: codecov
