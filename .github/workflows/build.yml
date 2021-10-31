@@ -31,6 +31,7 @@ jobs:
         env:
           XBL_CID: ${{ secrets.XBL_CID }}
           XBL_CSEC: ${{ secrets.XBL_CSEC }}
+          XBL_TOKENS_PATH: env/tokens.json
       -
         name: Remove tokens
         run: rm -r env/
