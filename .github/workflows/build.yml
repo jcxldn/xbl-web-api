@@ -19,10 +19,10 @@ jobs:
         name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install coverage codecov -r requirements.txt
+          pip install coverage codecov -r requirements.txt -r requirements-tests.txt
       -
         name: Run tests
-        run: coverage run tests.py
+        run: XBLAPI_RUN_COVERAGE=1 py -m pytest -s
         env:
           XBL_EMAIL: ${{ secrets.XBL_EMAIL }}
           XBL_PASS: ${{ secrets.XBL_PASS }}
