@@ -105,6 +105,9 @@ app.register_blueprint(Profile(loop, xbl_client, cache).app, url_prefix="/profil
 from routes.usercolors import Usercolors
 app.register_blueprint(Usercolors(loop, xbl_client, cache).app, url_prefix="/usercolors")
 
+from routes.userstats import Userstats
+app.register_blueprint(Userstats(loop, xbl_client, cache).app, url_prefix="/userstats")
+
 from routes.xuid import Xuid
 app.register_blueprint(Xuid(loop, xbl_client, cache).app, url_prefix="/xuid")
 
