@@ -72,7 +72,7 @@ class QuartDecorator(object):
 
             logger.debug("Is value of type response? '%r'", isinstance(value, Response))
             logger.debug("Value Type: '%s'", str(value))
-            logger.debug("Has request? '%s'", request.path)
+            logger.debug("Has request? '%s'", request.full_path)
 
             # Now, let's create the cache key by hashing the path.
             cache_key = self.__make_cache_key(request)
@@ -150,7 +150,7 @@ class QuartDecorator(object):
         hash = hashlib.sha256()
 
         # 2. Encode the path in utf-8 (returns in bytes)
-        path_encoded = request.path.encode("utf-8")
+        path_encoded = request.full_path.encode("utf-8")
 
         # 3. Base64 encode the path (takes byte input)
         path_b64 = base64.b64encode(path_encoded)
