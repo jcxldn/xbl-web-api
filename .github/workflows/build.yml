@@ -21,12 +21,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install coverage codecov -r requirements.txt -r requirements-tests.txt
       -
+        name: Get tokens
+        run: mkdir env && echo '$XBL_TOKENE' | base64 --decode > env/tokens.json
+        env:
+          XBL_TOKENE: ${{ secrets.XBL_TOKENE }}
+      -
         name: Run tests
         run: XBLAPI_RUN_COVERAGE=1 pytest -s
         env:
           XBL_CID: ${{ secrets.XBL_CID }}
           XBL_CSEC: ${{ secrets.XBL_CSEC }}
-          XBL_TOKENS_PATH: ${{ secrets.XBL_TOKENS_PATH }}
+      -
+        name: Remove tokens
+        run: rm -r env/
       -
         name: Report coverage
         run: codecov
