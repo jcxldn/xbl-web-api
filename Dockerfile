@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY requirements.txt ./
 
-RUN pip install gunicorn -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 
@@ -19,4 +19,4 @@ ENV PORT=80
 
 EXPOSE $PORT
 
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "server:app"]
+CMD ["python", "server.py"]
