@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY requirements.txt ./
 
-RUN bash -c 'if [ $(dpkg --print-architecture) == "armhf" ]; then apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc; fi' && pip install -r requirements.txt
+RUN bash -c 'if [ $(dpkg --print-architecture) == "armhf" || $(dpkg --print-architecture) == "armel" ]; then apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc; fi' && pip install -r requirements.txt
 
 COPY . .
 
