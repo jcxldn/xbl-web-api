@@ -20,11 +20,11 @@ def setup():
     should_run_coverage = os.environ.get("XBLAPI_RUN_COVERAGE") is "1"
 
     if (should_run_coverage):
-        args = "coverage run --timid server.py"
+        args = [exec, "-m", "coverage", "run", "--timid", "server.py"]
     else:
-        args = "%s server.py" % exec
+        args = [exec, "server.py"]
 
-    print("Starting '%s' in dir '%s'..." % (args, cwd))
+    print("Starting '%s' in dir '%s'..." % (str(args), cwd))
 
     p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
     print("Waiting 10 seconds for server start")
