@@ -30,7 +30,7 @@ class Usercolors(BlueprintProvider, LoopbackRequestProvider):
                     colorObject = (await res.json())["profileUsers"][0]["settings"][12]
 
                     # 2. Check that we have the right object
-                    if (colorObject["id"] == "PreferredColor" and colorObject["value"].startswith("http://dlassets.xboxlive.com/public/content/ppl/colors/")):
+                    if (colorObject["id"] == "PreferredColor" and colorObject["value"].startswith("https://dlassets-ssl.xboxlive.com/public/content/ppl/colors/")):
                         print("Found color object")
                         colorUrl = colorObject["value"]
                         print("Found url: %s" % colorUrl)
@@ -40,9 +40,9 @@ class Usercolors(BlueprintProvider, LoopbackRequestProvider):
 
                         # 2.1. Check all aspects of thee url to make sure it's what we expect
                         if (
-                            splitUrl[0] == "http:" and
+                            splitUrl[0] == "https:" and
                             splitUrl[1] == "" and
-                            splitUrl[2] == "dlassets.xboxlive.com" and
+                            splitUrl[2] == "dlassets-ssl.xboxlive.com" and
                             splitUrl[3] == "public" and
                             splitUrl[4] == "content" and
                             splitUrl[5] == "ppl" and
