@@ -2,8 +2,8 @@ Quart
 Quart-CORS
 xbox-webapi==2.0.11
 python-dotenv
-flask-caching
 coloredlogs
 pyhumps
 apscheduler
 diskcache
+aiohttp
