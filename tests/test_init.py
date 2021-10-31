@@ -26,7 +26,7 @@ def setup():
 
     print("Starting '%s' in dir '%s'..." % (args, cwd))
 
-    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
     print("Waiting 10 seconds for server start")
     
     if (should_run_coverage):
