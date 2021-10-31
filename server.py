@@ -11,6 +11,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from routes import Routes
 from providers import LoggingProvider
+from providers.XblDecoratorProvider import XblDecorator
+from providers.caching.DiskCacheProvider import DiskCacheProvider
 
 #from flask_cors import CORS
 
@@ -29,7 +31,6 @@ app = Quart(__name__, static_folder=None)
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
 
 # Get a cacheprovider
-from providers.caching.DiskCacheProvider import DiskCacheProvider
 cache = DiskCacheProvider("/tmp/xbl-web-api")
 
 # Setup & start the scheduler
@@ -60,7 +61,6 @@ async def job_cache_cleanup():
     logger.info("New cache size is %i items." % cache.len())
 
 # Setup after_request to add caching headers
-
 def get_client(main_xbl_client):
     global xbl_client
     xbl_client = main_xbl_client
@@ -83,7 +83,7 @@ def get_routes():
 # Import routes from routes/ directory
 Routes(app, loop, xbl_client, cache)
 
-# define routes
+# Define routes for the homepage
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
@@ -93,34 +93,27 @@ def index():
 def readme():
     return send_from_directory("./", "README.md")
 
-
-# Note: 1 day cache (86400s) on following routes
-#@cr.route("/info", 86400)
 @app.route("/info")
-#@cache.cached(300)
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
 
+# Define routes that don't fit into any other categories
+# Create a XblDecorator instance
+r = XblDecorator(app, loop, cache)
 
-from providers.XblDecoratorProvider import XblDecorator
-
-# Init XblDecorator (inherits from QuartDecorator)
-router = XblDecorator(app, loop, cache)
-
-@router.openXboxRoute("/titleinfo/<int:titleid>", 86400)
-#@cr.jsonified_route("/titleinfo/<int:titleid>", 86400)
+@r.openXboxRoute("/titleinfo/<int:titleid>", r.cache.constants.SECONDS_ONE_DAY)
 async def titleinfo(titleid):
     return await xbl_client.titlehub.get_title_info(titleid)
 
-
 # legacysearch (EDS) has been removed from xbox-webapi v2
-# Return a 410 (Gone) here?
-#@x.openXboxRoute("/legacysearch/<query>", 86400)
-#async def search360(query):
-#    return xbl_client.eds.get_singlemediagroup_search(query, 10, "Xbox360Game", domain="Xbox360").content
+# It may be possible to re-implement at a later date
+@r.cachedRoute("/legacysearch/<query>", r.cache.constants.SECONDS_THIRTY_DAYS)
+async def search360(query):
+    res = jsonify({"error": "legacysearch not currently available", "code": 410})
+    res.status_code = 410 # 410 (Gone)
+    return res
 
-
-@router.cachedRoute("/gamertag/check/<gamertag>", 86400)
+@r.cachedRoute("/gamertag/check/<gamertag>", r.cache.constants.SECONDS_ONE_DAY)
 async def gamertagcheck(gamertag):
     # Use .value to get the int instead of the enum
     code = (await xbl_client.account.claim_gamertag(1, gamertag)).value
