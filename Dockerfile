@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY requirements.txt ./
 
-RUN pip install -r requirements.txt && bash -c "if [ $(dpkg --print-architecture) == "armv7l" ]; then apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc; fi"
+RUN bash -c 'if [ $(dpkg --print-architecture) == "armv7l" ]; then apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc; fi' && pip install -r requirements.txt
 
 COPY . .
 
