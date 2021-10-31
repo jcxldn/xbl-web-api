@@ -8,6 +8,8 @@ from hypercorn.asyncio import serve
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+
+from routes import Routes
 from providers import LoggingProvider
 
 #from flask_cors import CORS
@@ -18,14 +20,6 @@ import os
 import logging
 
 import main
-#import routes.friends
-#import routes.profile
-#import routes.presence
-#import routes.xuid
-#import routes.userstats
-#import routes.usercolors
-#import routes.achievements
-#import routes.dev
 
 logger = LoggingProvider.getLogger("server")
 
@@ -86,40 +80,8 @@ def get_routes():
         routes.append('%s' % rule)
     return routes
 
-
-from routes.achievements import Achievements
-app.register_blueprint(Achievements(loop, xbl_client, cache).app, url_prefix="/achievements")
-
-from routes.dev import Dev
-app.register_blueprint(Dev(loop, xbl_client, cache).app, url_prefix="/dev")
-
-from routes.friends import Friends
-app.register_blueprint(Friends(loop, xbl_client, cache).app, url_prefix="/friends")
-
-from routes.presence import Presence
-app.register_blueprint(Presence(loop, xbl_client, cache).app, url_prefix="/presence")
-
-from routes.profile import Profile
-app.register_blueprint(Profile(loop, xbl_client, cache).app, url_prefix="/profile")
-
-from routes.usercolors import Usercolors
-app.register_blueprint(Usercolors(loop, xbl_client, cache).app, url_prefix="/usercolors")
-
-from routes.userstats import Userstats
-app.register_blueprint(Userstats(loop, xbl_client, cache).app, url_prefix="/userstats")
-
-from routes.xuid import Xuid
-app.register_blueprint(Xuid(loop, xbl_client, cache).app, url_prefix="/xuid")
-
-# add routes / blueprints from other files
-#app.register_blueprint(routes.friends.app, url_prefix="/friends")
-#app.register_blueprint(routes.profile.app, url_prefix="/profile")
-#app.register_blueprint(routes.presence.app, url_prefix="/presence")
-#app.register_blueprint(routes.xuid.app, url_prefix="/xuid")
-#app.register_blueprint(routes.userstats.app, url_prefix="/userstats")
-#app.register_blueprint(routes.usercolors.app, url_prefix="/usercolors")
-#app.register_blueprint(routes.achievements.app, url_prefix="/achievements")
-#app.register_blueprint(routes.dev.app, url_prefix="/dev")
+# Import routes from routes/ directory
+Routes(app, loop, xbl_client, cache)
 
 # define routes
 @app.route("/")
