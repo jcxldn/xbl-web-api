@@ -1,4 +1,4 @@
-# Flask-caching patch for quart
+# Quart's flask-patch (intended for extensions) adds a loop.sync_wait function used in QuartDecoratorProvider.
 import quart.flask_patch
 from quart import Quart, jsonify, send_from_directory, request
 
