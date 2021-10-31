@@ -22,7 +22,7 @@ jobs:
           pip install coverage codecov -r requirements.txt -r requirements-tests.txt
       -
         name: Run tests
-        run: XBLAPI_RUN_COVERAGE=1 py -m pytest -s
+        run: XBLAPI_RUN_COVERAGE=1 pytest -s
         env:
           XBL_EMAIL: ${{ secrets.XBL_EMAIL }}
           XBL_PASS: ${{ secrets.XBL_PASS }}
