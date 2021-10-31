@@ -27,14 +27,14 @@ def setup():
     print("Starting '%s' in dir '%s'..." % (str(args), cwd))
 
     p = subprocess.Popen(args, stdout=subprocess.PIPE, shell=False, cwd=cwd)
-    print("Waiting 10 seconds for server start")
+    print("Waiting 30 seconds for server start")
     
     if (should_run_coverage):
         print("Measuring code coverage, DO NOT connect debugger!")
     else:
         print("You may connect your debugger now.")
 
-    sleep(10) # Wait for the server to start
+    sleep(30) # Wait for the server to start
     
     print("running tests!")
     yield # Run tests
