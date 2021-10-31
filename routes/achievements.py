@@ -4,9 +4,13 @@ from providers.BlueprintProvider import BlueprintProvider
 
 
 def tryParseInt(val, fallback):
-    if val.isdigit():
-        return int(val)
-    else:
+    try:
+        if val.isdigit():
+            return int(val)
+        else:
+            return fallback
+    except AttributeError:
+        # val is likely NoneType
         return fallback
 
 class Achievements(BlueprintProvider):
