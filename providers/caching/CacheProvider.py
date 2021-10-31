@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from providers.XblDecoratorProvider import XblDecorator
 
+from providers.caching.CacheConstants import CacheConstants
+
 class CacheProvider(ABC):
     # src: https://stackoverflow.com/a/11408458
     def _type(self):
@@ -22,3 +24,5 @@ class CacheProvider(ABC):
     @abstractmethod
     def shutdown(self):
         raise NotImplementedError("Implemented in subclass!")
+
+    constants = CacheConstants
