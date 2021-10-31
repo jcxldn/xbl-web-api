@@ -124,7 +124,7 @@ async def gamertagcheck(gamertag):
 
 
 # Create hypercorn config object
-port = os.getenv("PORT") or 3000
+port = int(os.getenv("PORT")) or 3000
 config = Config()
 config.bind = ["0.0.0.0:%i" % port]
 
