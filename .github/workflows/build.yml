@@ -27,7 +27,7 @@ jobs:
           XBL_TOKENE: ${{ secrets.XBL_TOKENE }}
       -
         name: Run tests
-        run: XBLAPI_RUN_COVERAGE=1 pytest -s
+        run: PYTHONUNBUFFERED=TRUE XBLAPI_RUN_COVERAGE=1 pytest -s
         env:
           XBL_CID: ${{ secrets.XBL_CID }}
           XBL_CSEC: ${{ secrets.XBL_CSEC }}
