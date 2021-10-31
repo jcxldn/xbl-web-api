@@ -1,4 +1,6 @@
-Quart
+# Quart does not have a release supporting python 3.10 yet
+# Instead let's use this commit, which adds support for 3.10.
+git+https://gitlab.com/pgjones/quart.git@b4d0de5680605cadc07b86b7d3948d0644640266#egg=Quart
 Quart-CORS
 xbox-webapi==2.0.11
 python-dotenv
