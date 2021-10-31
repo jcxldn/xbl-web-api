@@ -20,7 +20,7 @@ def setup():
     should_run_coverage = os.environ.get("XBLAPI_RUN_COVERAGE") is "1"
 
     if (should_run_coverage):
-        args = "%s -m coverage run --timid server.py" % exec
+        args = "coverage run --timid server.py"
     else:
         args = "%s server.py" % exec
 
