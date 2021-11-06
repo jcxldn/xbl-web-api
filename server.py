@@ -44,8 +44,19 @@ async def job_timed_reauth():
     is_same_loop = asyncio.get_running_loop() is loop
     if (is_same_loop):
         sched_logger.debug("In the same event loop! Refreshing tokens if needed...")
+
+        issueTimeBeforeRefresh = xbl_client._auth_mgr.user_token.issue_instant
         # This async function will refresh the tokens only *if* they are unavailable or expired
         await xbl_client._auth_mgr.refresh_tokens()
+
+        if (xbl_client._auth_mgr.user_token.issue_instant != issueTimeBeforeRefresh):
+            sched_logger.debug("Tokens have been refreshed!")
+            # Token has changed, save to disk
+            with open(os.getenv("XBL_TOKENS_PATH"), mode="w") as f:
+                f.write(xbl_client._auth_mgr.oauth.json())
+                sched_logger.info("Saved refreshed tokens to disk!")
+        else:
+            sched_logger.debug("Tokens have NOT been refreshed")
     else:
         sched_logger.error("Not in the same event loop!")
         raise RuntimeError("Timed Reauth not in same loop!")
