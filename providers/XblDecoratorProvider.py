@@ -1,6 +1,7 @@
 # Subclass of QuartDecoratorProvider with functions more specific to handling eg. caching & openxbox returning
 
 from providers.QuartDecoratorProvider import QuartDecorator
+from providers.modifiers.PagedResponseModifier import PagedResponseModifier
 
 from quart import Response
 from humps import camelize
@@ -20,7 +21,7 @@ class DateTimeJsonEncoder(json.JSONEncoder):
         # If not datetime, use super func
         return super(DateTimeJsonEncoder, self).default(obj)
 
-class XblDecorator(QuartDecorator):
+class XblDecorator(QuartDecorator, PagedResponseModifier):
 
     def __handleOpenXboxRoute(self, func):
         # Wrap function so function name is set to func's name

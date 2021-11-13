@@ -26,6 +26,9 @@ class BlueprintProvider(ABC):
         # Shortcut to access openXboxRoute
         self.openXboxRoute = self.xbl_decorator.openXboxRoute
 
+        # Shortcut to access the paged response modifier
+        self.pagedResponseModifier = self.xbl_decorator.pagedResponseModifier
+
         # Register routes
         self.routes()
     
