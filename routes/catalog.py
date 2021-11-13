@@ -68,18 +68,6 @@ class Catalog(BlueprintProvider, LoopbackRequestProvider):
         # ---------- Shortcut routes to get various images (eg. boxart, keyart, etc) ----------
         # Using loopback requests to above routes - See xuid.py#L34
         # Callback defined above outside of routes()
-        @self.xbl_decorator.cachedRoute("/img/<any(boxart, keyart):image>/bigid/<id>")
-        async def boxart_bigid(image, id):
-            return await self.__boxart_make_loopback_request(image, "bigid", id)
-
-        @self.xbl_decorator.cachedRoute("/img/<any(boxart, keyart):image>/legacyproductid/<int:id>")
-        async def boxart_legacy(image, id):
-            return await self.__boxart_make_loopback_request(image, "legacyproductid", id)
-
-        @self.xbl_decorator.cachedRoute("/img/<any(boxart, keyart):image>/titleid/<int:id>")
-        async def boxart_titleid(image, id):
-            return await self.__boxart_make_loopback_request(image, "titleid", id)
-
-        @self.xbl_decorator.cachedRoute("/img/<any(boxart, keyart):image>/pfn/<id>")
-        async def boxart_pfn(image, id):
-            return await self.__boxart_make_loopback_request(image, "pfn", id)
+        @self.xbl_decorator.cachedRoute("/img/<any(boxart, keyart):image>/<any(bigid, legacyproductid, titleid, pfn):lookupType>/<id>")
+        async def boxart(image, lookupType, id):
+            return await self.__boxart_make_loopback_request(image, lookupType, id)
