@@ -2,6 +2,7 @@ from typing import Type
 from quart import Quart
 # Import all route blueprints
 from routes.achievements import Achievements
+from routes.catalog import Catalog
 from routes.dev import Dev
 from routes.friends import Friends
 from routes.presence import Presence
@@ -19,6 +20,7 @@ class Routes:
 
         self.register_batch([
             Achievements,
+            Catalog,
             Dev,
             Friends,
             Presence,
