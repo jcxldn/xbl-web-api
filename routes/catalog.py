@@ -1,6 +1,6 @@
 from aiohttp import ClientResponse
 from functools import partial
-from quart import redirect
+from quart import Response, redirect
 from providers.BlueprintProvider import BlueprintProvider
 from providers.LoopbackRequestProvider import LoopbackRequestProvider
 from xbox.webapi.api.provider.catalog.models import AlternateIdType, FieldsTemplate
@@ -16,13 +16,50 @@ class Catalog(BlueprintProvider, LoopbackRequestProvider):
             json = await lookupRes.json()
 
             # Get image array
-            image_array = json["products"][0]["localizedProperties"][0]["images"]
+            image_array = []
+            try:
+                image_array = json["products"][0]["localizedProperties"][0]["images"]
+            except IndexError:
+                res = Response("No images available")
+                res.status_code = 404
+                return res
 
-            # Filter the list for the object containing the boxart
-            dat = (list(filter(lambda i:i["imagePurpose"] == imagePurpose, image_array)))[0]
+            dat = ""
+
+            try:
+                # Filter the list for the object containing the boxart
+                dat = (list(filter(lambda i:i["imagePurpose"] == imagePurpose, image_array)))[0]
+            except IndexError:
+                # title does not have the appropiate imagePurpose - let's try and find a substitute!
+                try:
+                    # BoxArt -> Poster
+                    if (imagePurpose == "BoxArt"):
+                        # Try "Poster"
+                        dat = (list(filter(lambda i:i["imagePurpose"] == "Poster", image_array)))[0]
+                    # KeyArt -> Tile
+                    if (imagePurpose == "BrandedKeyArt"):
+                        tileList = (list(filter(lambda i:i["imagePurpose"] == "Tile", image_array)))
+                        # Get the tile image with the largest size
+                        # Define the sorter
+                        def sorter(i):
+                            return i["fileSizeInBytes"]
+                        # Sort the list
+                        tileList.sort(key=sorter, reverse=True)
+                        # Set the output as the largest tile image
+                        dat = tileList[0]
+                except IndexError:
+                    # Can't find anything!
+                    # Either Poster/Tile don't exist or it's something like Minecraft Bedrock UWP which returns no results here.
+                    # Let's just return a 404.
+                    res = Response("Could not find specified image")
+                    res.status_code = 404
+                    return res
             
+            # If we get here, we've found some kind of image!!
+
             # Get the  URL, replacing // with https:// for better compatibility
-            url = dat["uri"].replace("//", "https://")
+            # Only replace it if uri starts with "//"
+            url = dat["uri"].replace("//", "https://") if dat["uri"].startswith("//") else dat["uri"]
 
             # Create a 302 (Found) response
             return redirect(url, code=302)
