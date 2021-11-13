@@ -2,6 +2,7 @@ from quart import jsonify
 
 from providers.BlueprintProvider import BlueprintProvider
 
+
 class Dev(BlueprintProvider):
     def routes(self):
         @self.xbl_decorator.router("/reauth")
@@ -14,6 +15,8 @@ class Dev(BlueprintProvider):
             oauth = self.xbl_client._auth_mgr.oauth.is_valid()
             user = self.xbl_client._auth_mgr.user_token.is_valid()
             xsts = self.xbl_client._auth_mgr.xsts_token.is_valid()
-            return jsonify({
-                "authenticated": oauth and user and xsts,
-            })
+            return jsonify(
+                {
+                    "authenticated": oauth and user and xsts,
+                }
+            )

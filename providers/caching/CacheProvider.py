@@ -4,6 +4,7 @@ from providers.XblDecoratorProvider import XblDecorator
 
 from providers.caching.CacheConstants import CacheConstants
 
+
 class CacheProvider(ABC):
     # src: https://stackoverflow.com/a/11408458
     def _type(self):
@@ -12,11 +13,11 @@ class CacheProvider(ABC):
     @abstractmethod
     def get(self, key):
         raise NotImplementedError("Implemented in subclass!")
-    
+
     @abstractmethod
     def set(self, key, value, expire_seconds):
         raise NotImplementedError("Implemented in subclass!")
-    
+
     @abstractmethod
     def has(self, key):
         raise NotImplementedError("Implemented in subclass")

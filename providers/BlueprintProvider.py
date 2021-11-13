@@ -4,6 +4,7 @@ from quart import Blueprint, jsonify
 from providers.XblDecoratorProvider import XblDecorator
 from providers import LoggingProvider
 
+
 class BlueprintProvider(ABC):
     # src: https://stackoverflow.com/a/11408458
     def _type(self):
@@ -31,7 +32,7 @@ class BlueprintProvider(ABC):
 
         # Register routes
         self.routes()
-    
+
     @abstractmethod
     def routes(self):
         # decorator handles error reporting, doesn't matter what we put here
