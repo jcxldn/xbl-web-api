@@ -1,6 +1,7 @@
 from inspect import isfunction
 from asyncio.coroutines import iscoroutinefunction
-#from asyncio.futures import isfuture
+
+# from asyncio.futures import isfuture
 
 import base64
 import functools
@@ -11,6 +12,7 @@ from quart import Response, request
 
 from providers import LoggingProvider
 
+
 class QuartDecorator(object):
     def __init__(self, app, loop, cache):
         self.app = app
@@ -19,7 +21,7 @@ class QuartDecorator(object):
         self.logger = LoggingProvider.getLogger(__name__)
         # Log to debug console about decorator init
         self.logger.debug("QuartDecorator init...")
-    
+
     def __debug_return(self, func):
         # Wrap function so function name is set to func's name
         # Required as quart needs different "endpoints" (based on func name) for different routes
@@ -28,14 +30,15 @@ class QuartDecorator(object):
         @functools.wraps(func)
         def dec(*args, **kwargs):
             value = self.call(func, *args, **kwargs)
-            #value = self.call(func)
-            #print("RETURN OF FUNC: %s" % value)
+            # value = self.call(func)
+            # print("RETURN OF FUNC: %s" % value)
             return value
+
         return dec
-    
+
     def call_async_wait(self, func, *args, **kwargs):
         return self.loop.sync_wait(func(*args, **kwargs))
-    
+
     # is$X functions from asyncio tasks.py
     def call(self, func, *args, **kwargs):
         # Get a child logger with this function name as the suffix
@@ -52,8 +55,7 @@ class QuartDecorator(object):
             return func(*args, **kwargs)
         else:
             raise TypeError("Unsupported input func: '%s'" % func)
-        
-    
+
     def __cache_response(self, func, timeout):
         """
         Internal function to run a route and cache the resulting Response object.
@@ -80,7 +82,9 @@ class QuartDecorator(object):
             logger.info("Created cache key '%s'", cache_key)
 
             # DEV: Sanity check to make sure 2nd cache key returns the same value
-            logger.info("Sanity check passed? %r", cache_key == self.__make_cache_key(request))
+            logger.info(
+                "Sanity check passed? %r", cache_key == self.__make_cache_key(request)
+            )
 
             logger.info("Found timeout of %ss", str(timeout))
 
@@ -89,6 +93,7 @@ class QuartDecorator(object):
 
             # Lastly, let's return the response so we can complete the request.
             return value
+
         return dec
 
     def __add_cache_headers(self, res):
@@ -115,7 +120,7 @@ class QuartDecorator(object):
         else:
             logger.warn("Skipping cache headers (not type Response)")
         return res
-    
+
     def __cachedRoute(self, func, timeout):
         """
         Cached Route handler, runs just before app.route.
@@ -134,7 +139,7 @@ class QuartDecorator(object):
             cache_key = self.__make_cache_key(request)
 
             # Check if the cache key already exists
-            if (self.cache.has(cache_key)):
+            if self.cache.has(cache_key):
                 # This request is already cached! Let's fetch and return it.
                 logger.debug("Found cached result! Returning...")
                 return self.cache.get(cache_key)
@@ -142,8 +147,9 @@ class QuartDecorator(object):
                 # Result not cached, let's call the function
                 logger.debug("No cache! Calling function...")
                 return self.__cache_response(func, timeout)(*args, **kwargs)
+
         return dec
-    
+
     def __make_cache_key(self, request):
         # 1. Create a hash object
         # TODO: switch to a better hashing algorithm?
@@ -160,13 +166,15 @@ class QuartDecorator(object):
 
         # 5. Return the digest (result) of the hash function
         return hash.hexdigest()
-    
+
     def router(self, path, timeout=300):
         def dec(func):
             return self.app.route(path)(self.__debug_return(func))
+
         return dec
-    
+
     def cachedRoute(self, path, timeout=300):
         def dec(func):
             return self.app.route(path)(self.__cachedRoute(func, timeout))
+
         return dec

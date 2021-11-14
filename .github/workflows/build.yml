@@ -3,69 +3,67 @@ name: build
 on: [push, workflow_dispatch]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Run linter
+        uses: psf/black@stable
   test:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
-      -
-        name: Setup up Python
+      - name: Setup up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      -
-        name: Install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install coverage codecov -r requirements.txt -r requirements-tests.txt
-      -
-        name: Get tokens
+      - name: Get tokens
         run: mkdir env && echo $XBL_TOKENE | base64 --decode > env/tokens.json
         env:
           XBL_TOKENE: ${{ secrets.XBL_TOKENE }}
-      -
-        name: Run tests
+      - name: Run tests
         run: PYTHONUNBUFFERED=TRUE XBLAPI_RUN_COVERAGE=1 pytest -s
         env:
           XBL_CID: ${{ secrets.XBL_CID }}
           XBL_CSEC: ${{ secrets.XBL_CSEC }}
           XBL_TOKENS_PATH: env/tokens.json
-      -
-        name: Remove tokens
+      - name: Remove tokens
         run: rm -r env/
-      -
-        name: Report coverage
+      - name: Report coverage
         run: codecov
   docker:
     needs: test
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
         if: github.ref == 'refs/heads/master'
-      -
-        name: Set up QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
           platforms: all
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: latest
-      -
-        name: List Available platforms
+      - name: List Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      -
-        name: Run buildx
+      - name: Run buildx
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6 \

@@ -1,5 +1,6 @@
 import aiohttp
 
+
 class LoopbackRequestProvider(object):
     async def get(self, path, on_finish):
         async with aiohttp.ClientSession() as session:

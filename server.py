@@ -14,7 +14,7 @@ from providers import LoggingProvider
 from providers.XblDecoratorProvider import XblDecorator
 from providers.caching.DiskCacheProvider import DiskCacheProvider
 
-#from flask_cors import CORS
+# from flask_cors import CORS
 
 import asyncio
 import subprocess
@@ -39,17 +39,19 @@ scheduler.start()
 
 # Define scheduled tasks
 sched_logger = logging.getLogger("sched.timed_reauth")
-@scheduler.scheduled_job('interval', minutes=1)
+
+
+@scheduler.scheduled_job("interval", minutes=1)
 async def job_timed_reauth():
     is_same_loop = asyncio.get_running_loop() is loop
-    if (is_same_loop):
+    if is_same_loop:
         sched_logger.debug("In the same event loop! Refreshing tokens if needed...")
 
         issueTimeBeforeRefresh = xbl_client._auth_mgr.user_token.issue_instant
         # This async function will refresh the tokens only *if* they are unavailable or expired
         await xbl_client._auth_mgr.refresh_tokens()
 
-        if (xbl_client._auth_mgr.user_token.issue_instant != issueTimeBeforeRefresh):
+        if xbl_client._auth_mgr.user_token.issue_instant != issueTimeBeforeRefresh:
             sched_logger.debug("Tokens have been refreshed!")
             # Token has changed, save to disk
             with open(os.getenv("XBL_TOKENS_PATH"), mode="w") as f:
@@ -61,7 +63,8 @@ async def job_timed_reauth():
         sched_logger.error("Not in the same event loop!")
         raise RuntimeError("Timed Reauth not in same loop!")
 
-@scheduler.scheduled_job('interval', minutes=5)
+
+@scheduler.scheduled_job("interval", minutes=5)
 async def job_cache_cleanup():
     # This job will remove expired items from the cache
     number_removed = cache.remove_expired()
@@ -71,6 +74,7 @@ async def job_cache_cleanup():
     logger.info("Removed %i expired items from cache." % number_removed)
     logger.info("New cache size is %i items." % cache.len())
 
+
 # Setup after_request to add caching headers
 def get_client(main_xbl_client):
     global xbl_client
@@ -79,17 +83,20 @@ def get_client(main_xbl_client):
 
 # Get the short SHA and return as string
 def get_sha():
-    if 'GIT_COMMIT' in os.environ:
-        return os.getenv('GIT_COMMIT')[0:7]
+    if "GIT_COMMIT" in os.environ:
+        return os.getenv("GIT_COMMIT")[0:7]
     else:
-        return str(subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()).split("'")[1::2][0]
+        return str(
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).strip()
+        ).split("'")[1::2][0]
 
 
 def get_routes():
     routes = []
     for rule in app.url_map.iter_rules():
-        routes.append('%s' % rule)
+        routes.append("%s" % rule)
     return routes
+
 
 # Import routes from routes/ directory
 Routes(app, loop, xbl_client, cache)
@@ -107,31 +114,38 @@ async def readme():
     res.mimetype = "text/markdown"
     return res
 
+
 @app.route("/info")
 def info():
     return jsonify({"sha": get_sha(), "routes": get_routes()})
+
 
 # Define routes that don't fit into any other categories
 # Create a XblDecorator instance
 r = XblDecorator(app, loop, cache)
 
+
 @r.openXboxRoute("/titleinfo/<int:titleid>", r.cache.constants.SECONDS_ONE_DAY)
 async def titleinfo(titleid):
     return await xbl_client.titlehub.get_title_info(titleid)
+
 
 # legacysearch (EDS) has been removed from xbox-webapi v2
 # It may be possible to re-implement at a later date
 @r.cachedRoute("/legacysearch/<query>", r.cache.constants.SECONDS_THIRTY_DAYS)
 async def search360(query):
     res = jsonify({"error": "legacysearch not currently available", "code": 410})
-    res.status_code = 410 # 410 (Gone)
+    res.status_code = 410  # 410 (Gone)
     return res
+
 
 @r.cachedRoute("/gamertag/check/<gamertag>", r.cache.constants.SECONDS_ONE_DAY)
 async def gamertagcheck(gamertag):
     # Use .value to get the int instead of the enum
     code = (await xbl_client.account.claim_gamertag(1, gamertag)).value
-    return jsonify({"available": "true" if code == 200 else "false" if code == 409 else "unknown" })
+    return jsonify(
+        {"available": "true" if code == 200 else "false" if code == 409 else "unknown"}
+    )
 
 
 # Create hypercorn config object
