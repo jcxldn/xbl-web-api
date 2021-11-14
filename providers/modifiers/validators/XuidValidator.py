@@ -14,7 +14,7 @@ class XuidValidator(BaseValidator):
             # Wrong type
             return False
 
-    def validate(self, param="id"):
+    def validate(self, param="xuid"):
         def dec(func):
             return self._handle(func, param)
 
