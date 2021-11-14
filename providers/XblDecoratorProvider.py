@@ -2,6 +2,7 @@
 
 from providers.QuartDecoratorProvider import QuartDecorator
 from providers.modifiers.PagedResponseModifier import PagedResponseModifier
+from providers.modifiers.validators import Validators
 
 from quart import Response
 from humps import camelize
@@ -24,6 +25,11 @@ class DateTimeJsonEncoder(json.JSONEncoder):
 
 
 class XblDecorator(QuartDecorator, PagedResponseModifier):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.validators = Validators(self.call)
+
     def __handleOpenXboxRoute(self, func):
         # Wrap function so function name is set to func's name
         # Required as quart needs different "endpoints" (based on func name) for different routes

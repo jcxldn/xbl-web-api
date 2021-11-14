@@ -30,6 +30,9 @@ class BlueprintProvider(ABC):
         # Shortcut to access the paged response modifier
         self.pagedResponseModifier = self.xbl_decorator.pagedResponseModifier
 
+        # Shortcut to access validators
+        self.validators = self.xbl_decorator.validators
+
         # Register routes
         self.routes()
 
