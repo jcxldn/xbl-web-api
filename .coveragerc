@@ -1,0 +1,4 @@
+[report]
+# Ignore abstract methods in base ABC classes
+exclude_lines =
+    raise NotImplementedError\(\"Implemented in subclass!\"\)
