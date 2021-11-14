@@ -163,3 +163,8 @@ loop.run_until_complete(serve(app, config))
 # When we get here, hypercorn has finished so we can just close the ClientSession
 logger.info("Serve future done! Closing session...")
 loop.run_until_complete(session.close())
+# Next up, let's gracefully stop the cache provider
+logger.info("Shutting down cache provider... (had %i items)" % cache.len())
+cache.shutdown()
+# Cleanup done!
+logger.info("Cleanup done!")
