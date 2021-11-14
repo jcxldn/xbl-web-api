@@ -80,7 +80,3 @@ async def authenticate(loop):
 
     # server.get_client(xbl_client)
     return xbl_client, session
-
-
-if __name__ == "__main__":
-    asyncio.run(authenticate())

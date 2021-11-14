@@ -75,12 +75,6 @@ async def job_cache_cleanup():
     logger.info("New cache size is %i items." % cache.len())
 
 
-# Setup after_request to add caching headers
-def get_client(main_xbl_client):
-    global xbl_client
-    xbl_client = main_xbl_client
-
-
 # Get the short SHA and return as string
 def get_sha():
     if "GIT_COMMIT" in os.environ:
