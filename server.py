@@ -75,12 +75,6 @@ async def job_cache_cleanup():
     logger.info("New cache size is %i items." % cache.len())
 
 
-# Setup after_request to add caching headers
-def get_client(main_xbl_client):
-    global xbl_client
-    xbl_client = main_xbl_client
-
-
 # Get the short SHA and return as string
 def get_sha():
     if "GIT_COMMIT" in os.environ:
@@ -163,3 +157,8 @@ loop.run_until_complete(serve(app, config))
 # When we get here, hypercorn has finished so we can just close the ClientSession
 logger.info("Serve future done! Closing session...")
 loop.run_until_complete(session.close())
+# Next up, let's gracefully stop the cache provider
+logger.info("Shutting down cache provider... (had %i items)" % cache.len())
+cache.shutdown()
+# Cleanup done!
+logger.info("Cleanup done!")
