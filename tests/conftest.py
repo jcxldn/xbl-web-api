@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 import signal
 import os
 import sys
@@ -33,8 +33,22 @@ def setup():
 
     sleep(30)  # Wait for the server to start
 
+    # Make a note of the test start time
+    epoch_start = int(time())
+
     print("running tests!")
     yield  # Run tests
+
+    print(
+        "tests completed! Waiting until server has been up for 5 mins to ensure that scheduled jobs run..."
+    )
+
+    # Wait until 5 minutes has elapsed to ensure that scheduled jobs run
+    while int(time() - epoch_start < 300):
+        continue
+        # Continue to wait...
+
+    # 5 minutes has passed! Let's continue...
 
     print("Tests finished! Sending SIGINT/CTRL+C")
 
