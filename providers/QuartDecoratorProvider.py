@@ -14,10 +14,11 @@ from providers import LoggingProvider
 
 
 class QuartDecorator(object):
-    def __init__(self, app, loop, cache):
+    def __init__(self, app, loop, cache, metrics):
         self.app = app
         self.loop = loop
         self.cache = cache
+        self.metrics = metrics
         self.logger = LoggingProvider.getLogger(__name__)
         # Log to debug console about decorator init
         self.logger.debug("QuartDecorator init...")
@@ -138,12 +139,19 @@ class QuartDecorator(object):
             logger.debug("dec() called, cached route init")
             cache_key = self.__make_cache_key(request)
 
+            # TODO: This is called *before* the current request is added to the cache (if applicable)
+            self.metrics.cache_size_gauge.set({}, self.cache.len())
+
             # Check if the cache key already exists
             if self.cache.has(cache_key):
+                # Increment the "total cached requests" counter
+                self.metrics.cached_requests_counter.inc({"path": request.path})
                 # This request is already cached! Let's fetch and return it.
                 logger.debug("Found cached result! Returning...")
                 return self.cache.get(cache_key)
             else:
+                # Increment the "total uncached requests" counter
+                self.metrics.uncached_requests_counter.inc({"path": request.path})
                 # Result not cached, let's call the function
                 logger.debug("No cache! Calling function...")
                 return self.__cache_response(func, timeout)(*args, **kwargs)

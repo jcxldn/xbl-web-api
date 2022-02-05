@@ -11,6 +11,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from routes import Routes
 from providers import LoggingProvider
+from providers.MetricsProvider import MetricsProvider
 from providers.XblDecoratorProvider import XblDecorator
 from providers.caching.DiskCacheProvider import DiskCacheProvider
 
@@ -29,6 +30,9 @@ loop = asyncio.get_event_loop()
 logger.info("Using loop: %s" % str(loop))
 app = Quart(__name__, static_folder=None)
 xbl_client, session = loop.run_until_complete(main.authenticate(loop))
+
+# Get a MetricsProvider
+metrics = MetricsProvider(app)
 
 # Get a cacheprovider
 cache = DiskCacheProvider("/tmp/xbl-web-api")
@@ -93,7 +97,7 @@ def get_routes():
 
 
 # Import routes from routes/ directory
-Routes(app, loop, xbl_client, cache)
+Routes(app, loop, xbl_client, cache, metrics)
 
 # Define routes for the homepage
 @app.route("/")
@@ -116,7 +120,7 @@ def info():
 
 # Define routes that don't fit into any other categories
 # Create a XblDecorator instance
-r = XblDecorator(app, loop, cache)
+r = XblDecorator(app, loop, cache, metrics)
 
 
 @r.openXboxRoute("/titleinfo/<int:titleid>", r.cache.constants.SECONDS_ONE_DAY)
@@ -160,5 +164,15 @@ loop.run_until_complete(session.close())
 # Next up, let's gracefully stop the cache provider
 logger.info("Shutting down cache provider... (had %i items)" % cache.len())
 cache.shutdown()
+
+logger.info("Waiting for metrics thread to shut down...")
+# Let's set the shutdown event for the metrics web server thread...
+metrics.metrics_app.shutdown_event.set()
+
+while metrics.metrics_app.thread.is_alive():
+    continue  # Wait until shutdown
+
+logger.info("Shut down metrics thread!")
+
 # Cleanup done!
 logger.info("Cleanup done!")

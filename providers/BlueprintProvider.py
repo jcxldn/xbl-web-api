@@ -10,7 +10,7 @@ class BlueprintProvider(ABC):
     def _type(self):
         return self.__class__.__name__
 
-    def __init__(self, loop, xbl_client, cache):
+    def __init__(self, loop, xbl_client, cache, metrics):
         self.app = Blueprint(self._type(), self._type())
         self.logger = LoggingProvider.getLogger(__name__)
 
@@ -21,8 +21,13 @@ class BlueprintProvider(ABC):
 
         # Set cache variable
         self.cache = cache
+
+        # Set metrics variable
+        self.metrics = metrics
+
         # Pass through cache variable to XblDecorator instance (for openXboxRoute caching in blueprints)
-        self.xbl_decorator = XblDecorator(self.app, self.loop, cache)
+        # Also pass though metrics variable for decorator usage
+        self.xbl_decorator = XblDecorator(self.app, self.loop, cache, metrics)
 
         # Shortcut to access openXboxRoute
         self.openXboxRoute = self.xbl_decorator.openXboxRoute

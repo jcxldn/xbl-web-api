@@ -7,3 +7,4 @@ pyhumps
 apscheduler
 diskcache
 aiohttp
+aioprometheus[quart]
