@@ -21,13 +21,13 @@ class AppProvider(object):
         asyncio.set_event_loop(asyncio.new_event_loop())
 
         # Get the new loop
-        loop = asyncio.get_event_loop()
+        self.loop = asyncio.get_event_loop()
 
         # Create a secondary quart instance
         app = Quart(__name__, static_folder=None)
 
         # Create a shutdown event
-        self.shutdown_event = asyncio.Event(loop=loop)
+        self.shutdown_event = asyncio.Event(loop=self.loop)
 
         # Define the metrics route
         @app.route("/metrics")
@@ -39,6 +39,6 @@ class AppProvider(object):
         config = Config()
         config.bind = ["0.0.0.0:%i" % 3001]
         # Start the server
-        loop.run_until_complete(
+        self.loop.run_until_complete(
             serve(app, config, shutdown_trigger=self.shutdown_event.wait)
         )

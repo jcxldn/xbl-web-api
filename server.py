@@ -167,7 +167,13 @@ cache.shutdown()
 
 logger.info("Waiting for metrics thread to shut down...")
 # Let's set the shutdown event for the metrics web server thread...
-metrics.metrics_app.shutdown_event.set()
+
+# Setting the event directly doesn't work on Linux (not thread-safe?)
+# metrics.metrics_app.shutdown_event.set()
+
+# Instead we will set the event using the loop for the metrics app.
+# see: https://stackoverflow.com/a/48839244
+metrics.metrics_app.loop.call_soon_threadsafe(metrics.metrics_app.shutdown_event.set)
 
 while metrics.metrics_app.thread.is_alive():
     continue  # Wait until shutdown
