@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from aioprometheus import REGISTRY, Counter, Gauge, render
-from quart import Quart, request
+from aioprometheus import Counter, Gauge
+from quart import Quart
 
 from providers.metrics import AppProvider
 
@@ -11,7 +11,7 @@ class MetricsProvider(ABC):
     def _type(self):
         return self.__class__.__name__
 
-    def __init__(self, app: Quart, path="/dev/metrics"):
+    def __init__(self, app: Quart):
         self.metrics_app = AppProvider.AppProvider()
 
         # Define custom counters
