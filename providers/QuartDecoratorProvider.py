@@ -92,6 +92,9 @@ class QuartDecorator(object):
             # Now that we've created the key, we can add it to the cache.
             self.cache.set(cache_key, value, timeout)
 
+            # We've added a new item to the cache! Let's update our metrics counter.
+            self.metrics.cache_size_gauge.set({}, self.cache.len())
+
             # Lastly, let's return the response so we can complete the request.
             return value
 
@@ -138,9 +141,6 @@ class QuartDecorator(object):
         def dec(*args, **kwargs):
             logger.debug("dec() called, cached route init")
             cache_key = self.__make_cache_key(request)
-
-            # TODO: This is called *before* the current request is added to the cache (if applicable)
-            self.metrics.cache_size_gauge.set({}, self.cache.len())
 
             # Check if the cache key already exists
             if self.cache.has(cache_key):

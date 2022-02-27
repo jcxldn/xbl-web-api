@@ -78,6 +78,10 @@ async def job_cache_cleanup():
     logger.info("Removed %i expired items from cache." % number_removed)
     logger.info("New cache size is %i items." % cache.len())
 
+    # If we removed anything, update the cache size metric
+    if number_removed != 0:
+        metrics.cache_size_gauge.set({}, cache.len())
+
 
 # Get the short SHA and return as string
 def get_sha():
