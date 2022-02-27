@@ -14,10 +14,11 @@ from providers import LoggingProvider
 
 
 class QuartDecorator(object):
-    def __init__(self, app, loop, cache):
+    def __init__(self, app, loop, cache, metrics):
         self.app = app
         self.loop = loop
         self.cache = cache
+        self.metrics = metrics
         self.logger = LoggingProvider.getLogger(__name__)
         # Log to debug console about decorator init
         self.logger.debug("QuartDecorator init...")
@@ -91,6 +92,9 @@ class QuartDecorator(object):
             # Now that we've created the key, we can add it to the cache.
             self.cache.set(cache_key, value, timeout)
 
+            # We've added a new item to the cache! Let's update our metrics counter.
+            self.metrics.cache_size_gauge.set({}, self.cache.len())
+
             # Lastly, let's return the response so we can complete the request.
             return value
 
@@ -140,10 +144,14 @@ class QuartDecorator(object):
 
             # Check if the cache key already exists
             if self.cache.has(cache_key):
+                # Increment the "total cached requests" counter
+                self.metrics.cached_requests_counter.inc({"path": request.path})
                 # This request is already cached! Let's fetch and return it.
                 logger.debug("Found cached result! Returning...")
                 return self.cache.get(cache_key)
             else:
+                # Increment the "total uncached requests" counter
+                self.metrics.uncached_requests_counter.inc({"path": request.path})
                 # Result not cached, let's call the function
                 logger.debug("No cache! Calling function...")
                 return self.__cache_response(func, timeout)(*args, **kwargs)
