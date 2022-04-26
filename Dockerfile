@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.10.4-slim-buster
 
 # Embed the current git commit in the runner image so that git is not required.
 ARG GIT_COMMIT
