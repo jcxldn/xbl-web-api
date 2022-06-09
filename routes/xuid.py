@@ -6,11 +6,6 @@ import json
 from providers.BlueprintProvider import BlueprintProvider
 from providers.LoopbackRequestProvider import LoopbackRequestProvider
 
-# Putting this function outside of the class so that profile.py can access it easily
-# TODO: This is not used internally, move to profile.py
-def isXUID(xuid):
-    return True if len(str(xuid)) == 16 else False
-
 
 class Xuid(BlueprintProvider, LoopbackRequestProvider):
     def routes(self):

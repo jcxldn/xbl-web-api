@@ -14,11 +14,12 @@ from routes.xuid import Xuid
 
 
 class Routes:
-    def __init__(self, app: Quart, loop, xbl_client, cache):
+    def __init__(self, app: Quart, loop, xbl_client, cache, metrics):
         self.app = app
         self.loop = loop
         self.xbl_client = xbl_client
         self.cache = cache
+        self.metrics = metrics
 
         self.register_batch(
             [
@@ -36,7 +37,7 @@ class Routes:
 
     def register(self, cls: Type):
         self.app.register_blueprint(
-            cls(self.loop, self.xbl_client, self.cache).app,
+            cls(self.loop, self.xbl_client, self.cache, self.metrics).app,
             url_prefix="/%s" % cls.__name__.lower(),
         )
 

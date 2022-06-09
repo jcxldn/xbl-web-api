@@ -3,7 +3,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Prouser123/xbl-web-api/build?logo=github&logoColor=white)
 ![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m782558122-d298b8bb4b0d1c15272b7ddf)
 [![coverage badge](https://img.shields.io/codecov/c/gh/prouser123/xbl-web-api.svg)](https://codecov.io/gh/Prouser123/xbl-web-api)
-![python3 badge](https://img.shields.io/badge/python-3.7-blue.svg)
+![python3 badge](https://img.shields.io/badge/python-3.10-blue.svg)
 
 [Live Instance](https://xbl-api.prouser123.me/)
 
