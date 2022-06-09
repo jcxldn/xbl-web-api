@@ -9,7 +9,7 @@ class XuidValidator(BaseValidator):
             param: int = param
 
             # XUIDs are 16 chracters long
-            return len(param) == 16
+            return len(str(param)) == 16
         else:
             # Wrong type
             return False
