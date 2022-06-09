@@ -9,10 +9,12 @@ import json
 class Userstats(BlueprintProvider, LoopbackRequestProvider):
     def routes(self):
         @self.openXboxRoute("/xuid/<int:xuid>/titleid/<int:titleid>")
+        @self.validators.xuid()
         async def xuidTitleIdStats(xuid, titleid):
             return await self.xbl_client.userstats.get_stats_batch([xuid], titleid)
 
         @self.xbl_decorator.cachedRoute("/gamertag/<gamertag>/titleid/<int:titleid>")
+        @self.validators.gamertag()
         async def gamertagTitleIdStats(gamertag, titleid):
             # 1. Get xuid from gamertag - See: xuid.py#L34
             async def on_xuid_lookup_finish(xuidRes: ClientResponse):

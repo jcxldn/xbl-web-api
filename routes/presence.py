@@ -8,6 +8,7 @@ from providers.LoopbackRequestProvider import LoopbackRequestProvider
 class Presence(BlueprintProvider, LoopbackRequestProvider):
     def routes(self):
         @self.openXboxRoute("/xuid/<int:xuid>")
+        @self.validators.xuid()
         async def xuid(xuid):
             # Currently getSinglePresence is not part of any release
             # return await self.xbl_client.presence.get_presence(str(xuid))
@@ -15,6 +16,7 @@ class Presence(BlueprintProvider, LoopbackRequestProvider):
             return (await self.xbl_client.presence.get_presence_batch([str(xuid)]))[0]
 
         @self.openXboxRoute("/gamertag/<gamertag>")
+        @self.validators.gamertag()
         async def gamertag(gamertag):
             # 1. Get the XUID for this user
             #    This is *not* a good way to call other routes (you should just call the function directly)

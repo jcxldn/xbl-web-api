@@ -23,6 +23,7 @@ class Usercolors(BlueprintProvider, LoopbackRequestProvider):
             )
 
         @self.xbl_decorator.cachedRoute("/get/xuid/<int:xuid>")
+        @self.validators.xuid()
         async def getXuid(xuid):
             # 1. Get profile data (/profile/gamertag/)
             #    See: xuid.py#L34
@@ -93,6 +94,7 @@ class Usercolors(BlueprintProvider, LoopbackRequestProvider):
             )
 
         @self.xbl_decorator.cachedRoute("/get/gamertag/<gamertag>")
+        @self.validators.gamertag()
         async def getGamertag(gamertag):
             # 1. Convert gamertag to XUID
             # NOTE: We could just call profileSettings via gamertag

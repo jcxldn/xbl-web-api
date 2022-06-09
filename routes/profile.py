@@ -9,21 +9,25 @@ class Profile(BlueprintProvider, LoopbackRequestProvider):
     def routes(self):
         # ---------- Profile Settings Routes (these don't have as much info) ----------
         @self.openXboxRoute("/settings/gamertag/<gamertag>")
+        @self.validators.gamertag()
         async def settings_gamertag(gamertag):
             return await self.xbl_client.profile.get_profile_by_gamertag(gamertag)
 
         @self.openXboxRoute("/settings/xuid/<int:xuid>")
+        @self.validators.xuid()
         async def settings_xuid(xuid):
             return await self.xbl_client.profile.get_profile_by_xuid(xuid)
 
         # ---------- Profile Routes ----------
         @self.openXboxRoute("/xuid/<int:xuid>")
+        @self.validators.xuid()
         async def xuid(xuid):
             # TODO: skipping XUID validation for now, will do for all routes afterwards
             # Assume xuid is valid
             return await self.xbl_client.profile.get_profiles([xuid])
 
         @self.openXboxRoute("/gamertag/<gamertag>")
+        @self.validators.gamertag()
         async def gamertag(gamertag):
             # 1. Convert gamertag to XUID
             # Making local http requests so we can grab cached data,

@@ -10,6 +10,7 @@ from providers.LoopbackRequestProvider import LoopbackRequestProvider
 class Xuid(BlueprintProvider, LoopbackRequestProvider):
     def routes(self):
         @self.xbl_decorator.cachedRoute("/<gamertag>")
+        @self.validators.gamertag()
         async def gamertag_to_xuid(gamertag):
             try:
                 profile_response = (
@@ -37,6 +38,7 @@ class Xuid(BlueprintProvider, LoopbackRequestProvider):
                 return response
 
         @self.xbl_decorator.cachedRoute("/<gamertag>/raw")
+        @self.validators.gamertag()
         async def gamertag_to_xuid_raw(gamertag):
             # Here we *could* just call the other function directly
             # While it would be cached, the path would not update

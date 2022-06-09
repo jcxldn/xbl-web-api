@@ -14,12 +14,14 @@ class Friends(BlueprintProvider):
 
     def routes(self):
         @self.xbl_decorator.cachedRoute("/summary/xuid/<int:xuid>")
+        @self.validators.xuid()
         async def xuid(xuid):
             return self.__craftSummary(
                 await self.xbl_client.people.get_friends_summary_by_xuid(xuid)
             )
 
         @self.xbl_decorator.cachedRoute("/summary/gamertag/<gamertag>")
+        @self.validators.gamertag()
         async def gamertag(gamertag):
             return self.__craftSummary(
                 await self.xbl_client.people.get_friends_summary_by_gamertag(gamertag)
