@@ -27,7 +27,7 @@ class AppProvider(object):
         app = Quart(__name__, static_folder=None)
 
         # Create a shutdown event
-        self.shutdown_event = asyncio.Event(loop=self.loop)
+        self.shutdown_event = asyncio.Event()
 
         # Define the metrics route
         @app.route("/metrics")
