@@ -64,9 +64,11 @@ jobs:
       - name: List Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Run buildx
-      # linux/386, linux/ppc64le, linux/s390x temporarily disabled (Cargo not detected)
+      # linux/ppc64le, linux/s390x: Cargo not detected
+      # linux/arm/v6: "qemu-arm: Could not open '/lib/ld-linux-armhf.so.3': No such file or directory"
+      # linux/386: rustup downloads x86_64 installer
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 \
+            --platform linux/amd64,linux/arm64,linux/arm/v7 \
             --output "type=image,push=$([[ $GITHUB_REF == "refs/heads/master" ]] && echo true || echo false)" \
             --build-arg GIT_COMMIT=$GITHUB_SHA -t jcxldn/xbl-web-api:latest .
