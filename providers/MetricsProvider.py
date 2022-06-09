@@ -49,7 +49,7 @@ class MetricsMiddleware:
             # Iterate through each header item
             for i in range(len(scope["headers"])):
                 # Check if the decoded string matches
-                if scope["headers"][i][0].decode() == "user_agent":
+                if scope["headers"][i][0].decode() == "user-agent":
                     # Found it!
                     user_agent = scope["headers"][i][1].decode()
                     self.metrics.requests_counter.inc({"user_agent": user_agent})
